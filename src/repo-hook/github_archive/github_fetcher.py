@@ -98,9 +98,11 @@ class GitHubArchiveFetcher:
             Set of repository names
         """
         repos = set()
+        
         for event in events:
             if 'repo' in event and 'name' in event['repo']:
                 repos.add(event['repo']['name'])
+        
         return repos
     
     def get_repo_info(self, events: List[Dict], repo_name: str) -> Dict:

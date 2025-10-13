@@ -28,9 +28,9 @@ class AgentRepoFilter:
         """
         self.keywords = [kw.lower() for kw in AGENT_KEYWORDS]
         self.use_ai = use_ai
+        self.github_api = GitHubAPI(token=github_token)
         if use_ai:
             self.llm = LLMClient(model="OpenAI/gpt-4o-mini")  # Use more economical model
-            self.github_api = GitHubAPI(token=github_token)
     
     def keyword_filter(self, repo_name: str, repo_description: str = "", repo_readme: str = "") -> bool:
         """
@@ -112,57 +112,19 @@ class AgentRepoFilter:
         """
         print(f"\nStarting filtering, total {len(repos_info)} repositories")
         
-        # Step 1: Keyword filtering (with README, multi-threaded)
-        print("\n[Step 1] Keyword filtering (checking README in parallel)...")
-        keyword_passed = []
+        # Step 1: Batch fetch basic info (stars, description) using GraphQL
+        print("\n[Step 1] Batch fetching repository info (GraphQL)...")
+        repo_names = [r['name'] for r in repos_info]
+        batch_results = self.github_api.get_repos_info_batch(repo_names)
+        print(f"Fetched info for {len(batch_results)} repositories")
         
-        def check_repo_keywords(repo_info):
-            """Check if a repo passes keyword filtering"""
-            repo_name = repo_info['name']
-            repo_description = repo_info.get('description', '')
-            
-            # Quick check with name and description first
-            if self.keyword_filter(repo_name, repo_description):
-                return repo_info, True
-            
-            # If not passed, try with README (only if AI filtering is enabled)
-            if self.use_ai:
-                readme_content = self.github_api.get_repo_readme(repo_name)
-                if readme_content and self.keyword_filter(repo_name, repo_description, readme_content):
-                    return repo_info, True
-            
-            return repo_info, False
-        
-        # Process repositories in parallel
-        from tqdm import tqdm
-        
-        with ThreadPoolExecutor(max_workers=20) as executor:
-            futures = {executor.submit(check_repo_keywords, repo_info): repo_info 
-                      for repo_info in repos_info}
-            
-            for future in tqdm(as_completed(futures), total=len(repos_info), desc="Keyword filtering"):
-                try:
-                    repo_info, passed = future.result()
-                    if passed:
-                        keyword_passed.append(repo_info)
-                except Exception as e:
-                    repo_info = futures[future]
-                    print(f"\nError checking {repo_info['name']}: {e}")
-        
-        print(f"Keyword filtering passed: {len(keyword_passed)} repositories")
-        
-        if not self.use_ai:
-            return [repo['name'] for repo in keyword_passed]
-        
-        # Step 2: Star filtering (fetch from GitHub API)
+        # Step 2: Star filtering
         print(f"\n[Step 2] Star filtering (>= {min_stars} stars)...")
         star_passed = []
         
-        from tqdm import tqdm
-        
-        for repo_info in tqdm(keyword_passed, desc="Checking stars"):
+        for repo_info in repos_info:
             repo_name = repo_info['name']
-            github_info = self.github_api.get_repo_info(repo_name)
+            github_info = batch_results.get(repo_name)
             
             if github_info and github_info.get('stars', 0) >= min_stars:
                 star_passed.append({
@@ -177,11 +139,52 @@ class AgentRepoFilter:
             print("No repositories passed star filtering")
             return []
         
-        # Step 3: AI filtering
-        print("\n[Step 3] AI deep filtering...")
+        # Step 3: Keyword filtering (with README, only for star-passed repos)
+        print(f"\n[Step 3] Keyword filtering with README (parallel)...")
+        keyword_passed = []
+        
+        def check_repo_keywords(repo_info):
+            """Check if a repo passes keyword filtering"""
+            repo_name = repo_info['name']
+            repo_description = repo_info.get('description', '')
+            
+            # Quick check with name and description first
+            if self.keyword_filter(repo_name, repo_description):
+                return repo_info, True
+            
+            # If not passed, try with README
+            readme_content = self.github_api.get_repo_readme(repo_name)
+            if readme_content and self.keyword_filter(repo_name, repo_description, readme_content):
+                return repo_info, True
+            
+            return repo_info, False
+        
+        # Process repositories in parallel
+        from tqdm import tqdm
+        
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            futures = {executor.submit(check_repo_keywords, repo_info): repo_info 
+                      for repo_info in star_passed}
+            
+            for future in tqdm(as_completed(futures), total=len(star_passed), desc="Keyword filtering"):
+                try:
+                    repo_info, passed = future.result()
+                    if passed:
+                        keyword_passed.append(repo_info)
+                except Exception as e:
+                    repo_info = futures[future]
+                    print(f"\nError checking {repo_info['name']}: {e}")
+        
+        print(f"Keyword filtering passed: {len(keyword_passed)} repositories")
+        
+        if not self.use_ai:
+            return [repo['name'] for repo in keyword_passed]
+        
+        # Step 4: AI deep filtering
+        print(f"\n[Step 4] AI deep filtering ({len(keyword_passed)} repos)...")
         ai_passed = []
         
-        for i, repo_info in enumerate(tqdm(star_passed, desc="AI filtering progress")):
+        for i, repo_info in enumerate(tqdm(keyword_passed, desc="AI filtering progress")):
             result = self.ai_filter(repo_info['name'], repo_info.get('description', ''))
             if result:
                 ai_passed.append({

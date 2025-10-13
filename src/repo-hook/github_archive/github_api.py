@@ -124,6 +124,127 @@ class GitHubAPI:
         
         return result
     
+    def get_repos_info_batch_graphql(self, repo_names: List[str], batch_size: int = 50) -> Dict[str, Optional[Dict]]:
+        """
+        Get repository information using GraphQL (batch query, more efficient)
+        
+        Args:
+            repo_names: List of repository names (format: "owner/repo")
+            batch_size: Number of repos per GraphQL query (max ~100)
+            
+        Returns:
+            Dict mapping repo names to their info
+        """
+        from tqdm import tqdm
+        results = {}
+        
+        # Calculate number of batches
+        num_batches = (len(repo_names) + batch_size - 1) // batch_size
+        
+        # Process in batches with progress bar
+        for i in tqdm(range(0, len(repo_names), batch_size), total=num_batches, desc="GraphQL batches"):
+            batch = repo_names[i:i + batch_size]
+            
+            # Build GraphQL query for this batch
+            query_parts = []
+            aliases = {}
+            
+            for idx, repo_name in enumerate(batch):
+                if '/' not in repo_name:
+                    continue
+                    
+                owner, name = repo_name.split('/', 1)
+                alias = f"repo{idx}"
+                aliases[alias] = repo_name
+                
+                query_parts.append(f'''
+                    {alias}: repository(owner: "{owner}", name: "{name}") {{
+                        nameWithOwner
+                        description
+                        stargazerCount
+                        primaryLanguage {{ name }}
+                        repositoryTopics(first: 10) {{ nodes {{ topic {{ name }} }} }}
+                    }}
+                ''')
+            
+            if not query_parts:
+                continue
+            
+            query = "query {" + " ".join(query_parts) + "}"
+            
+            # Make GraphQL request
+            try:
+                req = urllib.request.Request(
+                    "https://api.github.com/graphql",
+                    data=json.dumps({"query": query}).encode('utf-8'),
+                    headers={
+                        'Content-Type': 'application/json',
+                        'Authorization': f'token {self.token}' if self.token else ''
+                    }
+                )
+                
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    data = json.loads(response.read().decode('utf-8'))
+                    
+                    # Check for errors in response
+                    if 'errors' in data:
+                        # Handle NOT_FOUND errors gracefully (repos that don't exist)
+                        not_found_repos = set()
+                        other_errors = []
+                        
+                        for error in data['errors']:
+                            if error.get('type') == 'NOT_FOUND' and 'path' in error:
+                                # Extract alias from path (e.g., ['repo23'])
+                                alias = error['path'][0] if error['path'] else None
+                                if alias and alias in aliases:
+                                    not_found_repos.add(aliases[alias])
+                            else:
+                                other_errors.append(error)
+                        
+                        # Mark not found repos as None
+                        for repo_name in not_found_repos:
+                            results[repo_name] = None
+                        
+                        # If there are other errors, print them but continue
+                        if other_errors:
+                            print(f"\nGraphQL errors (non-NOT_FOUND): {other_errors}")
+                    
+                    if 'data' in data and data['data']:
+                        for alias, repo_name in aliases.items():
+                            repo_data = data['data'].get(alias)
+                            
+                            if repo_data:
+                                topics = []
+                                if repo_data.get('repositoryTopics') and repo_data['repositoryTopics'].get('nodes'):
+                                    topics = [t['topic']['name'] for t in repo_data['repositoryTopics']['nodes'] if t.get('topic')]
+                                
+                                # Safely get language
+                                language = ''
+                                if repo_data.get('primaryLanguage'):
+                                    language = repo_data['primaryLanguage'].get('name', '')
+                                
+                                results[repo_name] = {
+                                    'name': repo_data.get('nameWithOwner', repo_name),
+                                    'description': repo_data.get('description') or '',
+                                    'stars': repo_data.get('stargazerCount', 0),
+                                    'language': language,
+                                    'topics': topics
+                                }
+                            else:
+                                results[repo_name] = None
+                    else:
+                        # No data returned, fallback
+                        for repo_name in aliases.values():
+                            results[repo_name] = self.get_repo_info(repo_name)
+                                
+            except Exception as e:
+                print(f"GraphQL batch query error: {e}")
+                # Fallback to individual queries for this batch
+                for repo_name in batch:
+                    results[repo_name] = self.get_repo_info(repo_name)
+        
+        return results
+    
     def get_repos_info_batch(self, repo_names: List[str], max_workers: int = 10) -> Dict[str, Optional[Dict]]:
         """
         Get repository information for multiple repos in parallel
@@ -135,6 +256,11 @@ class GitHubAPI:
         Returns:
             Dict mapping repo names to their info
         """
+        # Use GraphQL if token is available (more efficient)
+        if self.token:
+            return self.get_repos_info_batch_graphql(repo_names, batch_size=50)
+        
+        # Fallback to parallel REST API calls
         results = {}
         
         with ThreadPoolExecutor(max_workers=max_workers) as executor:

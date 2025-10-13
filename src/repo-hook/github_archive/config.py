@@ -101,7 +101,7 @@ AGENT_KEYWORDS = [
     "MetaGPT",
 ]
 
-# Agent Repository definition (for LLM判断)
+# Agent Repository definition (for LLM judgment)
 AGENT_REPO_DEFINITION = """
 ## Agent Repository Definition
 
