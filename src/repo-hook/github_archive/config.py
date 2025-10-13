@@ -4,31 +4,101 @@ Configuration file
 
 # Agent-related keywords list (for initial filtering)
 AGENT_KEYWORDS = [
+    # Core agent terms
     "agent",
+    "agents",
+    "autonomous agent",
+    "ai agent",
+    "llm agent",
+    
+    # LLM providers and models
     "llm",
+    "large language model",
     "langchain",
     "autogen",
     "openai",
     "chatgpt",
-    "gpt",
+    "gpt-4",
+    "gpt-3.5",
     "claude",
     "anthropic",
+    "gemini",
+    "palm",
+    "llama",
+    
+    # Agent types and frameworks
     "assistant",
     "chatbot",
     "ai assistant",
+    "virtual assistant",
     "autonomous",
+    "cognitive architecture",
+    "reasoning agent",
+    
+    # Agent capabilities
     "tool calling",
+    "tool use",
     "function calling",
-    "prompt",
+    "function call",
+    "tool invocation",
+    "action execution",
+    "task decomposition",
+    "task planning",
+    
+    # Memory and context
+    "memory",
     "memory store",
+    "memory management",
     "vector store",
+    "vector database",
     "embedding",
+    "embeddings",
+    "semantic search",
+    "context management",
+    "conversation history",
+    
+    # RAG and retrieval
     "rag",
-    "retrieval",
+    "retrieval augmented",
+    "retrieval-augmented",
+    "document retrieval",
+    "knowledge base",
+    "knowledge retrieval",
+    
+    # Planning and orchestration
     "planner",
+    "planning",
+    "task planner",
     "orchestration",
-    "multi-agent",
     "workflow",
+    "multi-agent",
+    "multi agent",
+    "agent orchestration",
+    "agent framework",
+    "agentic",
+    
+    # Prompt engineering
+    "prompt",
+    "prompting",
+    "prompt engineering",
+    "prompt template",
+    "chain of thought",
+    "react pattern",
+    "few-shot",
+    
+    # Popular frameworks
+    "crewai",
+    "smolagents",
+    "transformers agent",
+    "haystack",
+    "semantic kernel",
+    "llamaindex",
+    "gpt-engineer",
+    "autogpt",
+    "babyagi",
+    "superagi",
+    "agentgpt",
+    "MetaGPT",
 ]
 
 # Agent Repository definition (for LLM判断)
