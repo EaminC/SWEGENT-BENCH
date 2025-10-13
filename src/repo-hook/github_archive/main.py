@@ -9,8 +9,8 @@ import json
 import os
 from datetime import datetime, timedelta
 from typing import List, Dict
+from pathlib import Path
 import argparse
-import os
 from dotenv import load_dotenv
 
 from github_fetcher import GitHubArchiveFetcher
@@ -193,7 +193,10 @@ def main():
     
     # Step 4: Save results
     print("\n[Phase 4] Saving results...")
-    output_dir = "/home/cc/SWGENT-Bench/data/hooked_repo"
+    # Get output directory (relative to script location)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent.parent.parent
+    output_dir = str(project_root / "data" / "hooked_repo")
     os.makedirs(output_dir, exist_ok=True)
     
     output_file = os.path.join(

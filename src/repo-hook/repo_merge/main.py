@@ -264,9 +264,14 @@ class RepoMerger:
 
 def main():
     """Main function"""
+    # Get default data directory (relative to script location)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent.parent.parent
+    default_data_dir = str(project_root / "data" / "hooked_repo")
+    
     parser = argparse.ArgumentParser(description='Merge agent repository data from multiple sources')
     parser.add_argument('--data-dir', type=str, 
-                       default='/home/cc/SWGENT-Bench/data/hooked_repo',
+                       default=default_data_dir,
                        help='Data file directory')
     parser.add_argument('--output', type=str,
                        default=None,
