@@ -1,22 +1,22 @@
 #!/bin/bash
-# 示例：使用不同模式运行合并工具
+# Example: Run merge tool with different modes
 
-echo "=== 示例1: 完整模式（默认） ==="
+echo "=== Example 1: Simple mode (default) - repository names list only ==="
 python main.py
 
 echo ""
-echo "=== 示例2: 简化模式（只输出仓库名称列表） ==="
-python main.py --simple
+echo "=== Example 2: Detailed mode - with stars, sources and statistics ==="
+python main.py --detailed
 
 echo ""
-echo "=== 示例3: 自定义输出路径 ==="
+echo "=== Example 3: Custom output path ==="
 # python main.py --output ~/my_agent_repos.json
 
 echo ""
-echo "=== 示例4: 指定数据目录 ==="
+echo "=== Example 4: Specify data directory ==="
 # python main.py --data-dir /path/to/your/data
 
 echo ""
-echo "完成！查看输出文件："
+echo "Done! View output file:"
 echo "  cat /home/cc/SWGENT-Bench/data/hooked_repo/agent_repo.json"
 

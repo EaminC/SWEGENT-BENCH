@@ -271,8 +271,8 @@ def main():
     parser.add_argument('--output', type=str,
                        default=None,
                        help='Output file path (default: agent_repo.json in data directory)')
-    parser.add_argument('--simple', action='store_true',
-                       help='Simplified output (repository names list only)')
+    parser.add_argument('--detailed', action='store_true',
+                       help='Detailed output (include stars, sources, etc.)')
     args = parser.parse_args()
     
     # Determine output path
@@ -283,6 +283,7 @@ def main():
     print("GitHub Agent Repository Merge Tool")
     print(f"Data directory: {args.data_dir}")
     print(f"Output file: {args.output}")
+    print(f"Output mode: {'Detailed' if args.detailed else 'Simple'}")
     print("=" * 60)
     
     # Create merger and execute merge
@@ -293,15 +294,12 @@ def main():
         return
     
     # Generate output by mode
-    if args.simple:
-        # Simplified mode: output repository names list only
-        output = {
-            'generated_at': result['generated_at'],
-            'total_repos': result['statistics']['total_repos'],
-            'repositories': [repo['name'] for repo in result['repositories']]
-        }
-    else:
+    if args.detailed:
+        # Detailed mode: include all information
         output = result
+    else:
+        # Simple mode (default): output repository names list only
+        output = [repo['name'] for repo in result['repositories']]
     
     # Save results
     with open(args.output, 'w', encoding='utf-8') as f:

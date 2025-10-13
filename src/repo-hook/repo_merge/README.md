@@ -30,19 +30,30 @@ python main.py --data-dir /path/to/data
 # Specify output file
 python main.py --output /path/to/output.json
 
-# Simplified output (repository names list only)
-python main.py --simple
+# Detailed output (include stars, sources, statistics)
+python main.py --detailed
 ```
 
 ### Parameter Description
 
 - `--data-dir`: Data file directory (default: `/home/cc/SWGENT-Bench/data/hooked_repo`)
 - `--output`: Output file path (default: `agent_repo.json` in data directory)
-- `--simple`: Simplified output mode, repository names list only
+- `--detailed`: Detailed output mode, include stars, sources and statistics
 
 ## Output Format
 
-### Full Mode (Default)
+### Simple Mode (Default)
+
+```json
+[
+  "Shubhamsaboo/awesome-llm-apps",
+  "microsoft/autogen",
+  "geekan/MetaGPT",
+  ...
+]
+```
+
+### Detailed Mode
 
 ```json
 {
@@ -63,20 +74,6 @@ python main.py --simple
       "original_sources": ["Shubhamsaboo/awesome-llm-apps", "rohitg00/awesome-ai-apps"],
       "source_count": 1
     }
-  ]
-}
-```
-
-### Simplified Mode
-
-```json
-{
-  "generated_at": "2025-10-13 12:00:00",
-  "total_repos": 220,
-  "repositories": [
-    "Shubhamsaboo/awesome-llm-apps",
-    "microsoft/autogen",
-    ...
   ]
 }
 ```
@@ -122,11 +119,11 @@ python main.py --simple
 ## Examples
 
 ```bash
-# Merge all data and generate full report
+# Merge all data and generate simple list (default)
 python main.py
 
-# Generate repository names list only (for other tools)
-python main.py --simple
+# Generate detailed report with stars and sources
+python main.py --detailed
 
 # Custom output location
 python main.py --output ~/my_agent_repos.json

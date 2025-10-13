@@ -20,3 +20,7 @@ Thumbs.db
 # Logs
 *.log
 
+# Cached repositories (issue-hook tool)
+data/cached_repo/
+
+
