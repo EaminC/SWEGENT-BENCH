@@ -105,7 +105,7 @@ python issue_crawler.py TsinghuaDatabaseGroup/DB-GPT --local-clone --workers 20
 
 ## Output Format
 
-Results are saved to `<project_root>/data/hooked_issue/<reponame>-<date>/issue.json`
+Results are saved to `/home/cc/SWGENT-Bench/data/hooked_issue/<reponame>-<date>/issue.json`
 
 JSON file structure:
 
