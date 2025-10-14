@@ -43,6 +43,20 @@ FORGE_API_KEY=your_forge_api_key_here
 
 ## Usage
 
+### Quick Check Single Issue/PR
+
+Use `quick_check.py` to quickly validate if a single issue or PR would be classified as an agent issue:
+
+```bash
+# Check by URL
+python quick_check.py https://github.com/owner/repo/issues/123
+
+# Check by repo and number
+python quick_check.py owner/repo#123
+```
+
+### Full Repository Crawling
+
 The tool provides two modes:
 
 ### 1. API Mode (Default)
