@@ -1,0 +1,2 @@
+Please take a careful look at the current hardware andrepo, and create a new Dockerfile named claude.dockerfile at the root of this repo that.when built, puts me in a /bin/bash CLI setting at theroot of the repository, with the repository installed
+
