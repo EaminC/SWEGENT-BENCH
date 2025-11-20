@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 
 def load_file_content(file_path):
@@ -21,7 +22,7 @@ def load_file_content(file_path):
         return f"[Error reading {file_path}: {e}]"
 
 
-def build_prompt(repo_build_dir):
+def build_prompt(repo_build_dir, feedback: Optional[str] = None):
     """Build the comprehensive prompt with all context files."""
     prompt_parts = []
     
@@ -100,6 +101,19 @@ APPROACH:
     prompt_parts.append(mock_interface)
     prompt_parts.append("")
     
+    # Add feedback section if available
+    if feedback:
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("PREVIOUS BUILD FEEDBACK")
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("The previous Docker build attempt failed. Here is the error information:")
+        prompt_parts.append("")
+        prompt_parts.append(feedback)
+        prompt_parts.append("")
+        prompt_parts.append("Please analyze the errors above and generate an improved Dockerfile that fixes these issues.")
+        prompt_parts.append("Focus on the specific errors shown in the feedback.")
+        prompt_parts.append("")
+    
     prompt_parts.append("=" * 80)
     prompt_parts.append("SPECIFIC TASK")
     prompt_parts.append("=" * 80)
@@ -156,7 +170,11 @@ def main():
     
     # Build comprehensive prompt
     print("\nBuilding prompt with context files...")
-    full_prompt = build_prompt(repo_build_dir)
+    # Check for feedback from environment
+    feedback = os.getenv("DOCKERFILE_FEEDBACK")
+    if feedback:
+        print("Found feedback from previous build attempt, including in prompt...")
+    full_prompt = build_prompt(repo_build_dir, feedback)
     print(f"Prompt built successfully ({len(full_prompt)} characters)")
     
     # Run claude command
@@ -188,4 +206,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
