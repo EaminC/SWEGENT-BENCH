@@ -5,6 +5,9 @@ import sys
 from pathlib import Path
 from time import sleep
 from dotenv import load_dotenv
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
+from stats.entry import StatsTool
+from tabnanny import verbose
 
 load_dotenv()
 YOUR_TOKEN = os.getenv('GITHUB_TOKEN')
@@ -25,6 +28,8 @@ def run_command(cmd, desc):
     print(f"[OK] Finished: {desc}\n{'='*60}")
 
 def main():
+    StatsTool(verbose=verbose).run("start")
+
     # Step 1: Run github/main.py
     run_command(
         ["python", "src/repo-hook/github/main.py", "--github-token", YOUR_TOKEN],
@@ -77,6 +82,7 @@ def main():
             print(f"[OK] Finished issue_crawler.py for {agent_name}")
 
     print(f"\n{'='*60}\nAll processes completed!\n{'='*60}")
+    StatsTool(verbose=verbose).run("end")
 
 if __name__ == "__main__":
     main()
