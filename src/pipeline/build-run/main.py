@@ -501,7 +501,7 @@ def main():
         # Step 1: Generate Dockerfile
         if not generate_dockerfile(repo_path, dockerfile_feedback, llm_client):
             print("Failed to generate Dockerfile")
-            if iteration < args.max_iterations:
+            if iteration < args.max_dockerfile_retries:
                 print("Continuing to next iteration...")
                 continue
             else:
@@ -511,7 +511,7 @@ def main():
         # Check if dockerfile was created
         if not dockerfile_path.exists():
             print(f"Error: Dockerfile was not created: {dockerfile_path}")
-            if iteration < args.max_iterations:
+            if iteration < args.max_dockerfile_retries:
                 print("Continuing to next iteration...")
                 continue
             else:
