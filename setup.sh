@@ -206,7 +206,16 @@ if ! check_pip; then
     # 如果系统包管理器安装失败，尝试使用 get-pip.py
     if ! check_pip; then
         print_info "尝试使用 get-pip.py 安装 pip..."
-        curl -sS https://bootstrap.pypa.io/get-pip.py | python3
+        
+        # 根据 Python 版本选择正确的 get-pip.py URL
+        if [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 9 ]; then
+            GET_PIP_URL="https://bootstrap.pypa.io/pip/${PYTHON_MAJOR}.${PYTHON_MINOR}/get-pip.py"
+            print_info "检测到 Python ${PYTHON_MAJOR}.${PYTHON_MINOR}，使用兼容版本的 get-pip.py: $GET_PIP_URL"
+        else
+            GET_PIP_URL="https://bootstrap.pypa.io/get-pip.py"
+        fi
+        
+        curl -sS "$GET_PIP_URL" | python3
     fi
     
     if check_pip; then

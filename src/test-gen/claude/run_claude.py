@@ -154,6 +154,8 @@ IMPORTANT: You must create a test file named: test{issue_data.get('number')}.py
         prompt_parts.append("=" * 80)
         
         for pr in linked_prs:
+            patch = pr.get('patch')
+            patch_str = patch[:5000] if patch else 'N/A'
             prompt_parts.append(f"""
 PR #{pr.get('number')}: {pr.get('title')}
 URL: {pr.get('url')}
@@ -165,7 +167,7 @@ PR Description:
 {pr.get('body', 'N/A')}
 
 Patch/Diff:
-{pr.get('patch', 'N/A')[:5000]}
+{patch_str}
 """)
     
     prompt_parts.append("")

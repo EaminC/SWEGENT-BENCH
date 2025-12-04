@@ -32,16 +32,29 @@ def get_pr_patch(repo: str, pr_number: int, github_token: Optional[str] = None) 
         headers["Authorization"] = f"token {github_token}"
     
     try:
-        url = f"{base_url}/repos/{repo}/pulls/{pr_number}"
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        
-        # Get PR diff
+        # Get PR diff directly (no need to check PR existence first)
         diff_url = f"{base_url}/repos/{repo}/pulls/{pr_number}.diff"
-        diff_response = requests.get(diff_url, headers=headers)
+        diff_response = requests.get(diff_url, headers=headers, timeout=30)
         diff_response.raise_for_status()
         
-        return diff_response.text
+        patch_text = diff_response.text
+        # Check if patch is empty (some PRs might have no code changes)
+        if not patch_text or not patch_text.strip():
+            print(f"Warning: PR #{pr_number} has empty patch (no code changes)")
+            return None
+        
+        return patch_text
+    except requests.exceptions.HTTPError as e:
+        status_code = e.response.status_code if e.response else 'unknown'
+        print(f"Warning: Failed to get patch for PR #{pr_number}: HTTP {status_code} - {e}")
+        if status_code == 404:
+            print(f"  PR #{pr_number} may not exist or is not accessible")
+        elif status_code == 403:
+            print(f"  Access forbidden - may need authentication or hit rate limit")
+        return None
+    except requests.exceptions.Timeout:
+        print(f"Warning: Timeout while fetching patch for PR #{pr_number}")
+        return None
     except Exception as e:
         print(f"Warning: Failed to get patch for PR #{pr_number}: {e}")
         return None
