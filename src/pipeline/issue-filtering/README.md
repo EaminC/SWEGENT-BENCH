@@ -6,5 +6,5 @@ The `run_pipeline.sh` script is scheduled to run automatically every hour using 
 
 ## Dataset
 
-- **Name:** [alfin06/swegent-hooked-issues](https://huggingface.co/datasets/alfin06/swegent-hooked-issues)
+- **Name:** [alfin06/swegent-issues-filtered](https://huggingface.co/datasets/alfin06/swegent-issues-filtered)
 - **Platform:** Hugging Face Datasets
