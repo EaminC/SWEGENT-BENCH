@@ -23,4 +23,6 @@ Thumbs.db
 # Cached repositories (issue-hook tool)
 data/cached_repo/
 
+# Local test scripts with sensitive data
+quick.py
 
