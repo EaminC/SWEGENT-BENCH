@@ -55,8 +55,10 @@ CRITICAL CONSTRAINTS:
 - DO NOT change any Python/JavaScript/other source files
 
 YOUR TASK:
-When creating/configuring the Dockerfile, set the appropriate environment variables to make the 
-repository use Forge API instead of OpenAI API. The application code should remain unchanged.
+When creating/configuring the Dockerfile, you need to:
+1. Set the appropriate environment variables to make the repository use Forge API instead of OpenAI API
+2. Install and configure unittest testing framework environment
+3. Ensure the system can run Python unittest tests
 
 ENVIRONMENT VARIABLES TO SET IN DOCKERFILE:
 The Forge API is OpenAI-compatible, so the application can work with it by setting these 
@@ -72,11 +74,21 @@ For Anthropic SDK compatibility:
 
 Additional configuration variables are available in the "ENVIRONMENT VARIABLES REFERENCE" section.
 
+UNITTEST ENVIRONMENT CONFIGURATION:
+The Dockerfile MUST install and configure Python unittest framework:
+- Install Python unittest module (usually included with Python, but ensure it's available)
+- Install any required testing dependencies (e.g., unittest.mock, unittest.TestCase)
+- Ensure Python can import unittest module: `python -c "import unittest"`
+- If the repository has test requirements, install them (e.g., requirements-test.txt, test-requirements.txt)
+- Make sure the environment is ready to run: `python -m unittest discover` or `python -m pytest` if pytest is used
+
 APPROACH:
 1. Set environment variables in the Dockerfile using ENV directives
-2. These environment variables will override the default API endpoints
-3. The existing code will automatically use Forge API through these environment variables
-4. No code changes needed - only Dockerfile configuration
+2. Install Python and unittest dependencies using RUN commands
+3. Install any test-related packages needed by the repository
+4. These environment variables will override the default API endpoints
+5. The existing code will automatically use Forge API through these environment variables
+6. No code changes needed - only Dockerfile configuration
 """)
     prompt_parts.append("")
     
@@ -119,7 +131,9 @@ APPROACH:
     prompt_parts.append("=" * 80)
     prompt_parts.append(base_prompt)
     prompt_parts.append("")
-    prompt_parts.append("REMINDER: Only configure environment variables in Dockerfile. Do NOT modify any source code.")
+    prompt_parts.append("REMINDER: Only configure environment variables and install dependencies in Dockerfile. Do NOT modify any source code.")
+    prompt_parts.append("")
+    prompt_parts.append("UNITTEST REQUIREMENT: The Dockerfile must ensure unittest framework is available and ready to use.")
     
     return "\n".join(prompt_parts)
 

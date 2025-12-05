@@ -26,3 +26,6 @@ data/cached_repo/
 # Local test scripts with sensitive data
 quick.py
 
+# Codex repository (do not upload to GitHub)
+codex/
+
