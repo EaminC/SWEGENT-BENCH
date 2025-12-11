@@ -49,7 +49,7 @@ def sanitize_data(data):
     return cleaned
 
 def main():
-    base_dir = Path(__file__).parent.parent.parent / "data"
+    base_dir = Path(__file__).parent.parent.parent.parent / "data"
     filtered_dir = base_dir / "issue-filtered"
     output_file = base_dir / "data.jsonl"
 
