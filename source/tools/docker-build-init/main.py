@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""
+Scans key repository files, generates a detailed prompt, and calls the LLM to 
+write a Dockerfile (env.dockerfile) that explicitly includes stages for both 
+runtime and unit testing environments, ensuring multi-language (Node.js + Python) 
+support in the test stage if required.
+"""
+
+import sys
+from pathlib import Path
+from typing import List, Dict
+
+# 确保 that the necessary module (tools.api.main.chat) can be imported
+PROJECT_ROOT = Path(__file__).resolve().parents[2]  # e.g., /home/cc/SWEGENT-BENCH/source
+sys.path.insert(0, str(PROJECT_ROOT))
+
+# Assuming this import path is correct for the user's environment
+from tools.api.main import chat  # noqa: E402
+
+
+# --- Configuration: Key Files to Scan ---
+
+TARGET_FILES = [
+    # Core Documentation & Deployment
+    "README.md", "Dockerfile", "docker-compose.yml", 
+    "Procfile", ".gitignore", "LICENSE", "CHANGELOG.md", "Makefile",
+    
+    # Dependency Management (Node.js/JavaScript)
+    "package.json", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", 
+    
+    # Dependency Management (Python)
+    "requirements.txt", "setup.py", "pyproject.toml",
+    
+    # Dependency Management (Java)
+    "pom.xml", "build.gradle",
+    
+    # Dependency Management (PHP, Ruby, Go)
+    "composer.json", "composer.lock", "Gemfile", "Gemfile.lock", 
+    "go.mod", "go.sum",
+    
+    # Configuration & Build Tools
+    "tsconfig.json", "babel.config.js", "jest.config.js",
+]
+
+TARGET_GLOBS = [
+    # CI/CD Workflows
+    ".github/workflows/*.yml",
+    ".github/workflows/*.yaml",
+    "gitlab-ci.yml",
+    
+    # Dockerfile Variants
+    "*.Dockerfile",
+    # Frontend Bundler/Configuration
+    "*.config.*",  # e.g., webpack.config.js, vite.config.ts
+    "docker-compose.*.yml",
+]
+
+
+# --- Core Logic Functions ---
+
+def find_target_files(repo_root: Path) -> List[Path]:
+    """Locate the target configuration and source files within the repository."""
+    found: List[Path] = []
+
+    for name in TARGET_FILES:
+        path = repo_root / name
+        if path.exists():
+            found.append(path)
+
+    for pattern in TARGET_GLOBS:
+        found.extend(repo_root.glob(pattern))
+
+    # Deduplicate paths (important for glob matching)
+    unique: List[Path] = []
+    seen = set()
+    for p in found:
+        if p.exists():
+            key = p.resolve()
+            if key not in seen:
+                seen.add(key)
+                unique.append(p)
+    return unique
+
+
+def read_files(files: List[Path]) -> List[Dict[str, str]]:
+    """Read the content of the files, logging an error if reading fails."""
+    results = []
+    for file in files:
+        # Use relative path for cleaner output in the prompt
+        relative_path = Path(file).relative_to(Path.cwd()) if file.is_absolute() and file.is_relative_to(Path.cwd()) else file
+        try:
+            content = file.read_text(encoding="utf-8", errors="replace")
+            results.append({"path": str(relative_path), "content": content})
+        except Exception as e:  # pragma: no cover
+            results.append({"path": str(relative_path), "content": f"<<READ ERROR: {e}>>"})
+    return results
+
+
+# NOTE: This build_prompt is now designed for the FINAL, most complex iteration 
+# (Step 3: Force multi-language, force unit test, fix entry path).
+def build_prompt(file_entries: List[Dict[str, str]]) -> str:
+    """
+    Assemble the final prompt with all constraints: multi-language setup, 
+    unit testing mandate, and fixing the application entry path inference.
+    """
+    
+    # --- Language Detection Logic ---
+    has_node = any("package.json" in item['path'] for item in file_entries)
+
+    # --------------------------------------------------------------------------
+    # --- CRITICAL INSTRUCTIONS ---
+    # --------------------------------------------------------------------------
+    
+    # Python is mandatory, so we enforce a versatile base image if Node is also present.
+    multi_language_setup_note = (
+        "**CRITICAL MULTI-LANGUAGE MANDATE:** The test/build stage MUST use a versatile base image (e.g., 'debian:bullseye-slim') "
+        "and explicitly install Python3/pip (mandatory for unit tests) AND any other necessary language environment (e.g., Node.js/pnpm)."
+    )
+    
+    # This addresses the previous 'dist/main.js' error
+    entrypoint_fix_note = (
+        "**CRITICAL ENTRYPOINT FIX:** The final `CMD` or `ENTRYPOINT` **MUST be inferred directly from package.json (e.g., 'start' script) or other key files**, "
+        "and the corresponding main application file (e.g., 'index.js', 'server.js', 'main.py') MUST be copied correctly, **without relying on a generic '/dist' path unless explicitly defined in the source files.**"
+    )
+
+    parts = [
+        "--- LLM INSTRUCTION: READ CAREFULLY ---",
+        "",
+        "**STRICT OUTPUT RULE:** Your entire response MUST be the raw, complete, final Dockerfile text. "
+        "DO NOT use code fences (```dockerfile), DO NOT provide explanations, and DO NOT add any surrounding prose.",
+        "",
+        "--- REQUIREMENTS ---",
+        "",
+        multi_language_setup_note,
+        "",
+        entrypoint_fix_note,
+        "",
+        
+        "1. **Test/Build Stage (AS test_builder):** This stage MUST install ALL dependencies (development included) and explicitly configure the environment to run the project build (inferred) AND **Python unit tests** (`python -m unittest discover`) to ensure repository quality.",
+        "2. **Minimal Runtime Image:** Use multi-stage build. The final image MUST be minimal, containing only production dependencies (no test tools).",
+        "3. **Inference:** Infer package managers, required ports (EXPOSE), and installation steps from the provided file contents.",
+        "",
+        "--- START FILE CONTENTS ---",
+    ]
+    
+    # Insert file contents
+    for item in file_entries:
+        path_str = item['path'].replace('\\', '/')
+        parts.append(f"### {path_str}")
+        parts.append(item["content"])
+        parts.append("")
+        
+    parts.append("--- END FILE CONTENTS ---")
+    
+    # Final instruction block for the LLM
+    parts.append("\nNow, output ONLY the Dockerfile content:")
+    
+    return "\n".join(parts)
+
+
+def ask_ai(prompt: str, model: str = "OpenAI/gpt-4o") -> str:
+    """Call the LLM to get the Docker build solution."""
+    messages = [
+        # System instruction is now much stronger and clearer on the role and output constraint
+        {"role": "system", "content": "You are a Senior DevOps Engineer specialized in creating highly constrained, multi-purpose Dockerfiles. Your output must strictly be a raw Dockerfile. **Do NOT generate any text other than the Dockerfile content.**"},
+        
+        {"role": "user", "content": prompt},
+    ]
+    return chat(messages=messages, model=model)
+
+
+def write_env_dockerfile(repo_root: Path, content: str) -> Path:
+    """Write the AI output to env.dockerfile in the repository root."""
+    target = repo_root / "env.dockerfile"
+    target.write_text(content, encoding="utf-8")
+    return target
+
+
+def run_docker_build_flow(repo_root: Path) -> Path:
+    """Scan -> Assemble Prompt -> Call AI -> Write env.dockerfile."""
+    print("--- Dockerfile Generation Flow Started ---")
+    
+    files = find_target_files(repo_root)
+    print(f"1. Found {len(files)} key files for context.")
+    
+    file_entries = read_files(files)
+    
+    # NOTE: This step assumes the FINAL prompt (Step 3) is being built.
+    prompt = build_prompt(file_entries)
+    
+    print("2. Calling LLM to generate Dockerfile... (Wait time depends on API)")
+    ai_result = ask_ai(prompt)
+    
+    # The output might still contain unwanted text if the LLM breaks the instruction.
+    
+    result_path = write_env_dockerfile(repo_root, ai_result)
+    return result_path
+
+
+def main():
+    """Main execution entry point."""
+    repo_root = Path.cwd()
+    try:
+        result_path = run_docker_build_flow(repo_root)
+        print(f"\n--- SUCCESS ---")
+        print(f"env.dockerfile successfully generated at: {result_path}")
+    except Exception as e:
+        print(f"\n--- ERROR ---")
+        print(f"An error occurred during the process: {e}", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    main()

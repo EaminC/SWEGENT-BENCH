@@ -206,7 +206,18 @@ if ! check_pip; then
     # 如果系统包管理器安装失败，尝试使用 get-pip.py
     if ! check_pip; then
         print_info "尝试使用 get-pip.py 安装 pip..."
-        curl -sS https://bootstrap.pypa.io/get-pip.py | python3
+        
+        # 根据 Python 版本选择正确的 get-pip.py URL
+        if [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -eq 8 ]; then
+            # Python 3.8 需要使用特定版本的 get-pip.py
+            GET_PIP_URL="https://bootstrap.pypa.io/pip/3.8/get-pip.py"
+            print_info "检测到 Python 3.8，使用兼容版本的 get-pip.py"
+        else
+            # Python 3.9+ 使用标准版本
+            GET_PIP_URL="https://bootstrap.pypa.io/get-pip.py"
+        fi
+        
+        curl -sS "$GET_PIP_URL" | python3
     fi
     
     if check_pip; then
@@ -219,8 +230,23 @@ fi
 
 # 升级 pip
 print_info "升级 pip 到最新版本..."
-python3 -m pip install --upgrade pip setuptools wheel --user 2>/dev/null || true
-print_success "pip 已升级"
+# 先尝试使用 --user 升级，如果失败则尝试系统级升级
+if ! python3 -m pip install --upgrade pip setuptools wheel --user 2>/dev/null; then
+    print_warning "用户级 pip 升级失败，尝试系统级升级..."
+    python3 -m pip install --upgrade pip setuptools wheel 2>/dev/null || {
+        print_warning "系统级 pip 升级失败，尝试使用 get-pip.py 升级..."
+        if [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -eq 8 ]; then
+            GET_PIP_URL="https://bootstrap.pypa.io/pip/3.8/get-pip.py"
+        else
+            GET_PIP_URL="https://bootstrap.pypa.io/get-pip.py"
+        fi
+        curl -sS "$GET_PIP_URL" | python3 - --upgrade 2>/dev/null || true
+    }
+fi
+
+# 验证 pip 版本
+PIP_VERSION=$(python3 -m pip --version 2>&1 | head -n1)
+print_success "pip 已升级: $PIP_VERSION"
 
 echo ""
 
@@ -505,20 +531,36 @@ echo ""
 # ============================================================================
 print_info "步骤 6: 安装 Python 依赖包"
 
+# 确保 ~/.local/bin 在 PATH 中（用于用户级安装的包）
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+    export PATH="$HOME/.local/bin:$PATH"
+fi
+
 if [ ! -f "requirements.txt" ]; then
     print_error "requirements.txt 文件不存在"
     exit 1
 fi
 
-print_info "安装依赖包（这可能需要几分钟）..."
-python3 -m pip install --user -r requirements.txt
+# 确保 pip 是最新版本
+print_info "确保 pip 是最新版本..."
+python3 -m pip install --upgrade pip setuptools wheel --user 2>/dev/null || \
+python3 -m pip install --upgrade pip setuptools wheel 2>/dev/null || true
 
-if [ $? -eq 0 ]; then
-    print_success "依赖包安装完成"
-else
+print_info "安装依赖包（这可能需要几分钟）..."
+# 先尝试用户级安装，如果失败则尝试系统级安装
+if ! python3 -m pip install --user -r requirements.txt; then
+    print_warning "用户级安装失败，尝试系统级安装..."
+    if ! python3 -m pip install -r requirements.txt; then
     print_error "依赖包安装失败"
+        print_info "请检查错误信息，可能需要："
+        print_info "  1. 升级 pip: python3 -m pip install --upgrade pip"
+        print_info "  2. 检查网络连接"
+        print_info "  3. 手动安装: python3 -m pip install -r requirements.txt"
     exit 1
+    fi
 fi
+
+print_success "依赖包安装完成"
 
 echo ""
 
@@ -605,12 +647,26 @@ print_info "步骤 9: 验证安装"
 
 # 验证 Python 包
 print_info "验证 Python 包..."
-python3 -c "import openai, requests, dotenv, tqdm; print('✓ 所有依赖包正常')" 2>/dev/null && {
+MISSING_PACKAGES=""
+
+# 检查每个包
+python3 -c "import openai" 2>/dev/null || MISSING_PACKAGES="$MISSING_PACKAGES openai"
+python3 -c "import requests" 2>/dev/null || MISSING_PACKAGES="$MISSING_PACKAGES requests"
+python3 -c "import dotenv" 2>/dev/null || MISSING_PACKAGES="$MISSING_PACKAGES python-dotenv"
+python3 -c "import tqdm" 2>/dev/null || MISSING_PACKAGES="$MISSING_PACKAGES tqdm"
+
+if [ -z "$MISSING_PACKAGES" ]; then
     print_success "Python 依赖验证通过"
-} || {
-    print_error "Python 依赖验证失败"
+else
+    print_error "Python 依赖验证失败，缺少以下包:$MISSING_PACKAGES"
+    print_info "尝试重新安装依赖..."
+    python3 -m pip install --user -r requirements.txt 2>/dev/null || \
+    python3 -m pip install -r requirements.txt 2>/dev/null || {
+        print_error "自动安装失败，请手动运行: python3 -m pip install -r requirements.txt"
     exit 1
 }
+    print_success "依赖包已重新安装"
+fi
 
 echo ""
 
