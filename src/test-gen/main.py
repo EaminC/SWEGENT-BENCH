@@ -195,7 +195,8 @@ def main():
         print(f"\n✓ Test file verification passed. Proceeding to Docker tests...")
         
         # Step 3: Run Docker tests
-        tests_passed = run_docker_tests(repo_path, dockerfile_path, issue_json_path)
+        # Use expanded_json_path instead of issue_json_path to include patch information
+        tests_passed = run_docker_tests(repo_path, dockerfile_path, expanded_json_path)
         
         if tests_passed:
             print(f"\n{'='*80}")
