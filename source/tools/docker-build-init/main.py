@@ -111,10 +111,22 @@ def build_prompt(file_entries: List[Dict[str, str]]) -> str:
     # --- CRITICAL INSTRUCTIONS ---
     # --------------------------------------------------------------------------
     
+    # Base image selection strategy
+    base_image_note = (
+        "**CRITICAL BASE IMAGE SELECTION:**\n"
+        "- For Python projects: Use 'python:3.12-slim' or 'python:3.11-slim' (RECOMMENDED)\n"
+        "- For Node.js projects: Use 'node:20-slim' or 'node:18-slim'\n"
+        "- For Python+Node.js: Use 'python:3.12-slim' as base and install Node.js on top\n"
+        "- AVOID using debian:bullseye-slim or ubuntu directly (complex dependency management)\n"
+        "- Official language images are pre-configured, more reliable, and easier to build"
+    )
+    
     # Python is mandatory, so we enforce a versatile base image if Node is also present.
     multi_language_setup_note = (
-        "**CRITICAL MULTI-LANGUAGE MANDATE:** The test/build stage MUST use a versatile base image (e.g., 'debian:bullseye-slim') "
-        "and explicitly install Python3/pip (mandatory for unit tests) AND any other necessary language environment (e.g., Node.js/pnpm)."
+        "**MULTI-LANGUAGE SETUP (if needed):** If both Python and Node.js are required:\n"
+        "- Start from python:3.12-slim\n"
+        "- Then install Node.js: apt-get install nodejs npm\n"
+        "- This approach is simpler than starting from debian/ubuntu"
     )
     
     # This addresses the previous 'dist/main.js' error
@@ -130,6 +142,8 @@ def build_prompt(file_entries: List[Dict[str, str]]) -> str:
         "DO NOT use code fences (```dockerfile), DO NOT provide explanations, and DO NOT add any surrounding prose.",
         "",
         "--- REQUIREMENTS ---",
+        "",
+        base_image_note,
         "",
         multi_language_setup_note,
         "",

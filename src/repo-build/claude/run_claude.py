@@ -42,6 +42,12 @@ def build_prompt(repo_build_dir, feedback: Optional[str] = None):
     mock_interface_file = repo_build_dir / "mock_interface.md"
     mock_interface = load_file_content(mock_interface_file)
     
+    # Check for existing claude.dockerfile in current directory
+    existing_dockerfile_path = Path.cwd() / "claude.dockerfile"
+    existing_dockerfile_content = None
+    if existing_dockerfile_path.exists():
+        existing_dockerfile_content = load_file_content(existing_dockerfile_path)
+    
     # Build the comprehensive prompt with clear instructions
     prompt_parts.append("=" * 80)
     prompt_parts.append("IMPORTANT INSTRUCTIONS")
@@ -54,11 +60,19 @@ CRITICAL CONSTRAINTS:
 - ONLY configure environment variables in the Dockerfile
 - DO NOT change any Python/JavaScript/other source files
 
+BASE IMAGE SELECTION (VERY IMPORTANT):
+- For Python projects: Use 'python:3.12-slim' or 'python:3.11-slim' (STRONGLY RECOMMENDED)
+- For Node.js projects: Use 'node:20-slim' or 'node:18-slim'
+- For Python+Node.js: Start from 'python:3.12-slim' and install Node.js on top
+- AVOID debian:bullseye-slim or ubuntu (causes dependency issues like gnupg problems)
+- Official language images are pre-configured and more reliable
+
 YOUR TASK:
 When creating/configuring the Dockerfile, you need to:
-1. Set the appropriate environment variables to make the repository use Forge API instead of OpenAI API
-2. Install and configure unittest testing framework environment
-3. Ensure the system can run Python unittest tests
+1. Choose the appropriate base image (see BASE IMAGE SELECTION above)
+2. Set the appropriate environment variables to make the repository use Forge API instead of OpenAI API
+3. Install and configure unittest testing framework environment
+4. Ensure the system can run Python unittest tests
 
 ENVIRONMENT VARIABLES TO SET IN DOCKERFILE:
 The Forge API is OpenAI-compatible, so the application can work with it by setting these 
@@ -111,6 +125,24 @@ APPROACH:
     prompt_parts.append("=" * 80)
     prompt_parts.append("This shows how the Forge API works - DO NOT modify code, just set ENV vars:")
     prompt_parts.append(mock_interface)
+    prompt_parts.append("")
+    
+    # Add existing Dockerfile section if available (from agentless init or previous iteration)
+    if existing_dockerfile_content and not existing_dockerfile_content.startswith("["):
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("EXISTING DOCKERFILE (Current Version)")
+        prompt_parts.append("=" * 80)
+        if feedback:
+            prompt_parts.append("This is the current Dockerfile that failed to build:")
+        else:
+            prompt_parts.append("An initial Dockerfile has been generated (possibly by agentless initialization).")
+            prompt_parts.append("Please review and optimize it based on the requirements:")
+        prompt_parts.append("")
+        prompt_parts.append(existing_dockerfile_content)
+        prompt_parts.append("")
+        if not feedback:
+            prompt_parts.append("TASK: Review the above Dockerfile and improve it if needed.")
+            prompt_parts.append("If it looks good, you can keep it. If there are issues, fix them.")
     prompt_parts.append("")
     
     # Add feedback section if available

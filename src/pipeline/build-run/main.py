@@ -7,6 +7,7 @@ Generates claude.dockerfile, attempts to build, and uses agent feedback to impro
 import os
 import sys
 import json
+import re
 import subprocess
 import argparse
 from pathlib import Path
@@ -15,6 +16,67 @@ from typing import Tuple, Optional
 # Add parent directories to path to import forge api
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from forge.api import LLMClient
+
+# Import agentless initialization
+import importlib.util
+
+
+def agentless_init_dockerfile(repo_path: Path) -> bool:
+    """
+    Use agentless method to initialize env.dockerfile
+    
+    Args:
+        repo_path: Path to repository
+        
+    Returns:
+        True if initialization succeeded, False otherwise
+    """
+    print(f"\n{'='*80}")
+    print("Agentless Initialization: Generating env.dockerfile")
+    print(f"{'='*80}")
+    
+    # Locate the docker-build-init script
+    project_root = Path(__file__).parent.parent.parent.parent  # SWEGENT-BENCH root
+    init_script = project_root / "source" / "tools" / "docker-build-init" / "main.py"
+    
+    if not init_script.exists():
+        print(f"Warning: Agentless init script not found: {init_script}")
+        print("Skipping agentless initialization, will start from scratch")
+        return False
+    
+    try:
+        # Load the module dynamically
+        spec = importlib.util.spec_from_file_location("docker_build_init", init_script)
+        if spec is None or spec.loader is None:
+            print(f"Error: Cannot load module from {init_script}")
+            return False
+            
+        module = importlib.util.module_from_spec(spec)
+        sys.modules["docker_build_init"] = module
+        spec.loader.exec_module(module)
+        
+        # Call the run_docker_build_flow function
+        print("Calling agentless generator...")
+        result_path = module.run_docker_build_flow(repo_path)
+        
+        if result_path and result_path.exists():
+            print(f"\n✓ env.dockerfile generated successfully: {result_path}")
+            
+            # Copy env.dockerfile as the starting point for claude.dockerfile
+            claude_dockerfile = repo_path / "claude.dockerfile"
+            claude_dockerfile.write_text(result_path.read_text())
+            print(f"✓ Copied to claude.dockerfile as starting point")
+            
+            return True
+        else:
+            print("✗ env.dockerfile was not created")
+            return False
+            
+    except Exception as e:
+        print(f"Error during agentless initialization: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
 
 
 def generate_dockerfile(repo_path: Path, feedback: Optional[str] = None, llm_client: Optional[LLMClient] = None) -> bool:
@@ -358,7 +420,7 @@ def run_test_verification(repo_path: Path, dockerfile_path: Path, issue_json_pat
 
 def ask_agent_if_dockerfile_issue(test_output: str, llm_client: LLMClient) -> bool:
     """
-    Ask subagent if test failures are due to Dockerfile issues
+    Ask subagent if test failures are due to Dockerfile issues (OLD METHOD - deprecated)
     
     Args:
         test_output: Test verification output
@@ -396,6 +458,145 @@ Test output:
         
     except Exception as e:
         print(f"Error asking agent: {e}")
+        return False
+
+
+def cofix_both_files(repo_path: Path, dockerfile_path: Path, test_output: str, issue_json_path: Path) -> bool:
+    """
+    Ask agent to fix both Dockerfile and test file together based on test execution results
+    
+    Args:
+        repo_path: Path to repository
+        dockerfile_path: Path to Dockerfile
+        test_output: Test execution output (failures)
+        issue_json_path: Path to issue JSON
+        
+    Returns:
+        True if agent successfully generated fixes, False otherwise
+    """
+    print(f"\n{'='*80}")
+    print("Co-fix: Agent analyzing both Dockerfile and test file...")
+    print(f"{'='*80}")
+    
+    # Read current files
+    dockerfile_content = ""
+    test_file_content = ""
+    test_file_path = None
+    
+    try:
+        dockerfile_content = dockerfile_path.read_text()
+    except Exception as e:
+        print(f"Error reading Dockerfile: {e}")
+        return False
+    
+    # Find test file
+    issue_data = json.loads(issue_json_path.read_text())
+    issue_number = issue_data.get('number', 'unknown')
+    test_file_path = repo_path / f"test{issue_number}.py"
+    
+    if not test_file_path.exists():
+        print(f"Test file not found: {test_file_path}")
+        return False
+    
+    try:
+        test_file_content = test_file_path.read_text()
+    except Exception as e:
+        print(f"Error reading test file: {e}")
+        return False
+    
+    # Build prompt for agent
+    prompt = f"""You are a debugging expert. You need to fix BOTH the Dockerfile and the test file to make the tests pass.
+
+IMPORTANT RULES:
+1. Make ONLY the MINIMAL necessary changes
+2. Fix BOTH files if needed, or just one if that's sufficient
+3. Preserve existing functionality
+4. Focus on making the tests pass
+
+================================================================================
+CURRENT DOCKERFILE ({dockerfile_path.name}):
+================================================================================
+{dockerfile_content}
+
+================================================================================
+CURRENT TEST FILE ({test_file_path.name}):
+================================================================================
+{test_file_content}
+
+================================================================================
+TEST EXECUTION OUTPUT (FAILURES):
+================================================================================
+{test_output[-3000:]}  # Last 3000 chars
+
+================================================================================
+YOUR TASK:
+================================================================================
+Analyze the test failures and determine what needs to be fixed in:
+1. The Dockerfile (environment, dependencies, configuration)
+2. The test file (test logic, assertions, setup)
+
+Output your fixes in this EXACT format:
+
+===DOCKERFILE_START===
+[Complete fixed Dockerfile content]
+===DOCKERFILE_END===
+
+===TESTFILE_START===
+[Complete fixed test file content]
+===TESTFILE_END===
+
+Remember: Make MINIMAL changes. Only fix what's broken."""
+
+    print("\nSending files and test output to agent...")
+    
+    # Call LLM (using subprocess to call test-gen script with custom mode)
+    # For now, we'll write the prompt to a temp file and use it
+    try:
+        cofix_script = Path(__file__).parent.parent.parent / "test-gen" / "cofix_agent.py"
+        temp_prompt = Path("/tmp/cofix_prompt.txt")
+        temp_prompt.write_text(prompt)
+        
+        # Call cofix agent
+        result = subprocess.run(
+            [sys.executable, str(cofix_script), str(temp_prompt)],
+            cwd=repo_path,
+            capture_output=True,
+            text=True,
+            timeout=180
+        )
+        
+        if result.returncode != 0:
+            print(f"Agent cofix failed: {result.stderr}")
+            return False
+        
+        # Parse agent output
+        output = result.stdout
+        
+        # Extract Dockerfile
+        dockerfile_match = re.search(r'===DOCKERFILE_START===\n(.*?)\n===DOCKERFILE_END===', output, re.DOTALL)
+        if dockerfile_match:
+            new_dockerfile = dockerfile_match.group(1)
+            dockerfile_path.write_text(new_dockerfile)
+            print(f"✓ Updated Dockerfile")
+        
+        # Extract test file
+        testfile_match = re.search(r'===TESTFILE_START===\n(.*?)\n===TESTFILE_END===', output, re.DOTALL)
+        if testfile_match:
+            new_testfile = testfile_match.group(1)
+            test_file_path.write_text(new_testfile)
+            print(f"✓ Updated test file")
+        
+        if not dockerfile_match and not testfile_match:
+            print("⚠ Agent did not provide files in expected format")
+            return False
+        
+        return True
+        
+    except subprocess.TimeoutExpired:
+        print("Agent cofix timed out")
+        return False
+    except Exception as e:
+        print(f"Error during cofix: {e}")
         return False
 
 
@@ -446,6 +647,13 @@ def main():
         help="Maximum number of test generation retries (default: 3)"
     )
     parser.add_argument(
+        "--max-cofix-retries",
+        type=int,
+        default=2,
+        metavar="N",
+        help="Maximum number of co-fix retries (default: 2)"
+    )
+    parser.add_argument(
         "--issue-json",
         type=str,
         metavar="PATH",
@@ -455,6 +663,11 @@ def main():
         "--enable-cofix",
         action="store_true",
         help="Enable co-fix mode: if test failures are due to Dockerfile issues, regenerate both Dockerfile and test together (default: disabled)"
+    )
+    parser.add_argument(
+        "--use-agentless-init",
+        action="store_true",
+        help="Use agentless method to generate initial Dockerfile before agent loop (default: disabled, recommended for better starting point)"
     )
     parser.add_argument(
         "repo_path",
@@ -482,6 +695,9 @@ def main():
         print(f"Max test retries: {args.max_test_retries}")
         print(f"Issue JSON: {args.issue_json}")
     print(f"Co-fix mode: {'Enabled' if args.enable_cofix else 'Disabled'}")
+    if args.enable_cofix:
+        print(f"Max co-fix retries: {args.max_cofix_retries}")
+    print(f"Agentless init: {'Enabled' if args.use_agentless_init else 'Disabled'}")
     print(f"{'='*80}")
     
     # Validate issue_json if provided
@@ -498,10 +714,31 @@ def main():
     dockerfile_path = repo_path / args.dockerfile
     
     # ============================================================================
+    # Phase 0: Agentless Initialization (Optional)
+    # ============================================================================
+    if args.use_agentless_init:
+        print(f"\n{'='*80}")
+        print("PHASE 0: Agentless Initialization")
+        print(f"{'='*80}")
+        
+        agentless_success = agentless_init_dockerfile(repo_path)
+        if agentless_success:
+            print("\n✓ Agentless initialization completed successfully")
+            print("  Starting agent loop from initialized Dockerfile...")
+        else:
+            print("\n⚠ Agentless initialization failed")
+            print("  Starting agent loop from scratch...")
+    else:
+        print(f"\n{'='*80}")
+        print("PHASE 0: Agentless Initialization - SKIPPED")
+        print(f"{'='*80}")
+        print("Starting agent loop from scratch (use --use-agentless-init to enable initialization)")
+    
+    # ============================================================================
     # Phase 1: Dockerfile Generation Loop
     # ============================================================================
     print(f"\n{'='*80}")
-    print("PHASE 1: Dockerfile Generation")
+    print("PHASE 1: Dockerfile Generation (Agent Loop)")
     print(f"{'='*80}")
     
     dockerfile_feedback = None
@@ -669,45 +906,116 @@ def main():
                 print("-" * 80)
             
             # Check if test is valid (buggy failed AND fixed passed)
-            if is_valid:
                 print(f"\n{'='*80}")
-                print("✓ SUCCESS: Test verification passed!")
+            print("Test Verification Result:")
                 print(f"{'='*80}")
-                print(f"  Buggy version: Failed as expected ✓")
-                print(f"  Fixed version: Passed as expected ✓")
+            print(f"  Buggy version: {'FAIL ✓' if buggy_failed else 'PASS ✗ (should fail!)'}")
+            
+            fixed_passed = "Fixed version test: ✓ Passed as expected" in test_output
+            print(f"  Fixed version: {'PASS ✓' if fixed_passed else 'FAIL ✗ (should pass!)'}")
+            print(f"  Overall: {'VALID ✓' if is_valid else 'INVALID ✗'}")
+            
+            if is_valid:
+                print(f"\n✓ SUCCESS: Test verification passed!")
+                print(f"  → Buggy version FAILed (correct)")
+                print(f"  → Fixed version PASSed (correct)")
                 test_success = True
                 break
             else:
-                print(f"\n✗ Test verification failed (iteration {test_iteration})")
-                if buggy_failed:
-                    print("  Buggy version: Failed as expected ✓")
-                else:
-                    print("  Buggy version: Should fail but passed ✗")
+                print(f"\n✗ Test verification failed (iteration {test_iteration}/{args.max_test_retries})")
+                if not buggy_failed:
+                    print("  Problem: Buggy version should FAIL but it PASSed")
+                if not fixed_passed:
+                    print("  Problem: Fixed version should PASS but it FAILed")
                 
-                if "Fixed version test: ✓ Passed as expected" in test_output:
-                    print("  Fixed version: Passed as expected ✓")
-                else:
-                    print("  Fixed version: Should pass but failed ✗")
+                if test_iteration >= args.max_test_retries:
+                    print(f"\n⚠ Reached max test retries ({args.max_test_retries})")
         
         # If test succeeded, exit
         if test_success:
             break
         
-        # If co-fix mode is enabled, ask agent if it's a Dockerfile issue
+        # If co-fix mode is enabled, try to fix both files together
         if args.enable_cofix and not full_loop_active:
             print(f"\n{'='*80}")
-            print("Asking agent if failures are due to Dockerfile issues...")
+            print("PHASE 3: Co-fix Mode")
             print(f"{'='*80}")
             
-            is_dockerfile_issue = ask_agent_if_dockerfile_issue(test_output, llm_client)
+            cofix_success = False
             
-            if is_dockerfile_issue:
-                print("\nAgent says: Dockerfile issue detected. Entering full loop...")
-                full_loop_active = True
+            # Co-fix loop
+            for cofix_iteration in range(1, args.max_cofix_retries + 1):
+                print(f"\n{'='*80}")
+                print(f"Co-fix Retry {cofix_iteration}/{args.max_cofix_retries}")
+                print(f"{'='*80}")
+                print("Agent analyzing Dockerfile + Test + Execution errors...")
+                
+                # Try to fix both files
+                if not cofix_both_files(repo_path, dockerfile_path, test_output, issue_json_path):
+                    print(f"\n✗ Co-fix generation failed (iteration {cofix_iteration})")
+                    if cofix_iteration < args.max_cofix_retries:
+                        print("Retrying co-fix...")
                 continue
             else:
-                print("\nAgent says: Not a Dockerfile issue.")
+                        print("\nMax co-fix retries reached")
                 break
+                
+                print("\n✓ Agent generated fixes for both files")
+                print("Re-running test verification...")
+                
+                # Re-run test verification
+                is_valid, buggy_failed, new_test_output = run_test_verification(
+                    repo_path, dockerfile_path, issue_json_path
+                )
+                
+                # Update test_output for next iteration if needed
+                test_output = new_test_output
+                
+                # Show test output
+                if test_output:
+                    print("\nTest output:")
+                    print("-" * 80)
+                    output_lines = test_output.split('\n')
+                    if len(output_lines) > 50:
+                        print("\n".join(output_lines[-50:]))
+                        print(f"\n... (showing last 50 lines of {len(output_lines)} total lines)")
+        else:
+                        print(test_output)
+                    print("-" * 80)
+                
+                # Check if tests now pass
+                print(f"\n{'='*80}")
+                print(f"Co-fix Result (Iteration {cofix_iteration}/{args.max_cofix_retries}):")
+                print(f"{'='*80}")
+                
+                fixed_passed = "Fixed version test: ✓ Passed as expected" in new_test_output
+                print(f"  Buggy version: {'FAIL ✓' if buggy_failed else 'PASS ✗ (should fail!)'}")
+                print(f"  Fixed version: {'PASS ✓' if fixed_passed else 'FAIL ✗ (should pass!)'}")
+                print(f"  Overall: {'VALID ✓' if is_valid else 'INVALID ✗'}")
+                
+                if is_valid and buggy_failed:
+                    print(f"\n✓ SUCCESS: Tests now pass after co-fix!")
+                    print(f"  → Buggy version FAILed (correct)")
+                    print(f"  → Fixed version PASSed (correct)")
+                    test_success = True
+                    cofix_success = True
+                    break
+                else:
+                    print(f"\n✗ Co-fix failed to fix the tests")
+                    if not buggy_failed:
+                        print("  Problem: Buggy version should FAIL but it PASSed")
+                    if not fixed_passed:
+                        print("  Problem: Fixed version should PASS but it FAILed")
+                    
+                    if cofix_iteration < args.max_cofix_retries:
+                        print(f"\nRetrying co-fix ({cofix_iteration + 1}/{args.max_cofix_retries})...")
+                        continue
+                    else:
+                        print(f"\n⚠ Max co-fix retries reached ({args.max_cofix_retries})")
+                        break
+            
+            # Exit test loop if co-fix succeeded or max retries reached
+            break
         else:
             break
     
