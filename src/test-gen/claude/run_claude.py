@@ -119,12 +119,15 @@ TEST STRUCTURE:
 - Test should be deterministic and not depend on external services
 
 OUTPUT FORMAT:
-You MUST save the test case as a Python file in the repository root directory.
+You MUST save the test case as a Python file. Prefer saving in tests/ directory if it exists,
+otherwise save in repository root directory.
 The filename MUST be exactly: test{issue_number}.py
 For example, if issue number is 128, the file must be named: test128.py
 DO NOT use any other naming format like test_issue_128.py or test_128.py - use test128.py
 
-CRITICAL: The file must be created in the repository root directory before you finish.
+IMPORTANT: If tests/ directory exists, save the file there to avoid setuptools conflicts.
+If tests/ directory doesn't exist, save in repository root directory.
+CRITICAL: The file must be created before you finish.
 """)
     prompt_parts.append("")
     
@@ -202,9 +205,12 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
    - Uses mocks for all external API calls
    - Is self-contained and can run independently
 
-4. Save the test file in the repository root directory with the exact filename: test{issue_number}.py
-   For example, if the issue number is 128, save it as: test128.py
+4. Save the test file with the exact filename: test{issue_number}.py
+   - If tests/ directory exists, save there: tests/test{issue_number}.py
+   - Otherwise, save in repository root: test{issue_number}.py
+   For example, if issue number is 128, save it as: test128.py
    IMPORTANT: The filename must be exactly "test{issue_number}.py" (no underscores, no prefixes)
+   PREFER tests/ directory to avoid setuptools "Multiple top-level modules" conflicts
 
 5. Make sure the test:
    - Uses proper unittest assertions

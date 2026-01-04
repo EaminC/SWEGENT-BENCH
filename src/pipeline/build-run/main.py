@@ -11,7 +11,7 @@ import re
 import subprocess
 import argparse
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Dict
 
 # Add parent directories to path to import forge api
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -98,6 +98,13 @@ def generate_dockerfile(repo_path: Path, feedback: Optional[str] = None, llm_cli
         print("Generating claude.dockerfile...")
     print(f"{'='*80}")
     
+    # Validate repository structure before generating Dockerfile
+    repo_structure = validate_repo_structure(repo_path)
+    print("\nRepository structure check:")
+    for key, exists in repo_structure.items():
+        status = "✓" if exists else "✗"
+        print(f"  {status} {key}: {exists}")
+    
     repo_build_script = Path(__file__).parent.parent.parent / "repo-build" / "claude" / "run_claude.py"
     
     if not repo_build_script.exists():
@@ -109,6 +116,8 @@ def generate_dockerfile(repo_path: Path, feedback: Optional[str] = None, llm_cli
     env = os.environ.copy()
     if feedback:
         env["DOCKERFILE_FEEDBACK"] = feedback
+    # Pass repository structure info
+    env["REPO_STRUCTURE"] = json.dumps(repo_structure)
     
     # Build command
     cmd = [sys.executable, str(repo_build_script)]
@@ -600,9 +609,67 @@ Remember: Make MINIMAL changes. Only fix what's broken."""
         return False
 
 
+def classify_build_error_simple(build_output: str) -> Dict[str, any]:
+    """Simple error classifier for build output"""
+    error_info = {
+        'type': 'unknown',
+        'suggestions': []
+    }
+    
+    build_lower = build_output.lower()
+    
+    if 'not found' in build_lower:
+        if '/tests' in build_output or 'tests/' in build_output:
+            error_info['type'] = 'missing_directory'
+            error_info['suggestions'] = [
+                'Check if tests/ directory exists before COPY',
+                'Use conditional COPY or create empty directory'
+            ]
+        elif 'pyproject.toml' in build_output:
+            error_info['type'] = 'missing_file'
+            error_info['suggestions'] = ['Check if pyproject.toml exists before COPY']
+    elif 'multiple top-level modules' in build_lower:
+        error_info['type'] = 'setuptools_conflict'
+        error_info['suggestions'] = [
+            'Move test*.py files to tests/ directory',
+            'Exclude test files in pyproject.toml'
+        ]
+    
+    return error_info
+
+
+def classify_build_error_simple(build_output: str) -> Dict[str, any]:
+    """Simple error classifier for build output"""
+    error_info = {
+        'type': 'unknown',
+        'suggestions': []
+    }
+    
+    build_lower = build_output.lower()
+    
+    if 'not found' in build_lower:
+        if '/tests' in build_output or 'tests/' in build_output:
+            error_info['type'] = 'missing_directory'
+            error_info['suggestions'] = [
+                'Check if tests/ directory exists before COPY',
+                'Use conditional COPY or create empty directory'
+            ]
+        elif 'pyproject.toml' in build_output:
+            error_info['type'] = 'missing_file'
+            error_info['suggestions'] = ['Check if pyproject.toml exists before COPY']
+    elif 'multiple top-level modules' in build_lower:
+        error_info['type'] = 'setuptools_conflict'
+        error_info['suggestions'] = [
+            'Move test*.py files to tests/ directory',
+            'Exclude test files in pyproject.toml'
+        ]
+    
+    return error_info
+
+
 def get_feedback_for_agent(build_output: str, iteration: int) -> str:
     """
-    Format build output as feedback for agent
+    Format build output as feedback for agent with error classification
     
     Args:
         build_output: Output from Docker build
@@ -611,10 +678,20 @@ def get_feedback_for_agent(build_output: str, iteration: int) -> str:
     Returns:
         Formatted feedback string
     """
+    error_info = classify_build_error_simple(build_output)
+    
     feedback = f"""The Docker build failed on iteration {iteration}.
 
 Build output:
-{build_output}
+{build_output}"""
+    
+    if error_info['type'] != 'unknown':
+        feedback += f"\n\nError Classification: {error_info['type']}"
+        if error_info['suggestions']:
+            feedback += "\n\nSpecific Issues Detected:"
+            feedback += "\n" + "\n".join(f"  - {s}" for s in error_info['suggestions'])
+    
+    feedback += """
 
 Please analyze the error and generate an improved Dockerfile that fixes these issues.
 Focus on the specific errors shown in the output above."""

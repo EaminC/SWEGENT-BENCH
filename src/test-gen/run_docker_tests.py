@@ -9,7 +9,7 @@ import json
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 
 def get_pr_info(issue_json_path: Path) -> Optional[dict]:
@@ -38,33 +38,86 @@ def get_head_sha(pr_info: dict) -> Optional[str]:
 
 
 def apply_patch(repo_path: Path, patch_content: str) -> bool:
-    """Apply patch to repository"""
+    """Apply patch to repository with multiple strategies"""
     try:
         # Create temporary patch file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.patch', delete=False) as f:
             f.write(patch_content)
             patch_file = f.name
         
-        # Apply patch using git apply
+        # Strategy 1: Try direct apply
         cmd = ['git', 'apply', patch_file]
         result = subprocess.run(cmd, cwd=repo_path, capture_output=True, text=True)
         
+        if result.returncode == 0:
+            os.unlink(patch_file)
+            return True
+        
+        print(f"Warning: Direct git apply failed: {result.stderr[:200]}")
+        
+        # Strategy 2: Try 3-way merge
+        cmd = ['git', 'apply', '--3way', patch_file]
+        result = subprocess.run(cmd, cwd=repo_path, capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print("✓ Patch applied using 3-way merge")
+            os.unlink(patch_file)
+            return True
+        
+        print(f"Warning: 3-way merge failed: {result.stderr[:200]}")
+        
+        # Strategy 3: Try with reject files (partial apply)
+        cmd = ['git', 'apply', '--reject', patch_file]
+        result = subprocess.run(cmd, cwd=repo_path, capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print("⚠ Patch applied with some rejections (check .rej files)")
+            os.unlink(patch_file)
+            return True
+        
         # Clean up temporary file
         os.unlink(patch_file)
+        print(f"Error: All patch application strategies failed")
+        return False
         
-        if result.returncode != 0:
-            print(f"Warning: git apply failed: {result.stderr}")
-            return False
-        
-        return True
     except Exception as e:
         print(f"Error: Failed to apply patch: {e}")
         return False
 
 
 def checkout_commit(repo_path: Path, sha: str) -> bool:
-    """Checkout specified commit"""
+    """Checkout specified commit with improved error handling"""
     try:
+        # First check if commit exists locally
+        check_cmd = ['git', 'cat-file', '-e', sha]
+        check_result = subprocess.run(check_cmd, cwd=repo_path, capture_output=True)
+        
+        if check_result.returncode != 0:
+            print(f"Warning: Commit {sha} does not exist in local repository")
+            print("  Attempting to fetch from remote...")
+            
+            # Try to fetch from all remotes
+            fetch_result = subprocess.run(
+                ['git', 'fetch', '--all'],
+                cwd=repo_path,
+                capture_output=True,
+                text=True
+            )
+            
+            if fetch_result.returncode == 0:
+                # Check again after fetch
+                check_result = subprocess.run(check_cmd, cwd=repo_path, capture_output=True)
+                if check_result.returncode != 0:
+                    print(f"Error: Commit {sha} not found even after fetch")
+                    print("  This commit may be in a different repository or was never pushed")
+                    return False
+                else:
+                    print("  ✓ Commit found after fetch")
+            else:
+                print(f"Error: Failed to fetch from remote: {fetch_result.stderr}")
+                return False
+        
+        # Now try to checkout
         cmd = ['git', 'checkout', sha]
         result = subprocess.run(cmd, cwd=repo_path, capture_output=True, text=True)
         
@@ -78,6 +131,116 @@ def checkout_commit(repo_path: Path, sha: str) -> bool:
         return False
 
 
+def validate_repo_structure(repo_path: Path) -> Dict[str, bool]:
+    """Check repository structure for common files/directories"""
+    structure = {
+        'has_tests_dir': (repo_path / 'tests').exists(),
+        'has_pyproject': (repo_path / 'pyproject.toml').exists(),
+        'has_poetry_lock': (repo_path / 'poetry.lock').exists(),
+        'has_package_json': (repo_path / 'package.json').exists(),
+        'has_requirements_txt': (repo_path / 'requirements.txt').exists(),
+        'has_setup_py': (repo_path / 'setup.py').exists(),
+        'has_sdk_typescript': (repo_path / 'sdk' / 'typescript').exists(),
+    }
+    return structure
+
+
+def classify_build_error(build_output: str) -> Dict[str, any]:
+    """Classify build error and provide suggestions"""
+    error_info = {
+        'type': 'unknown',
+        'severity': 'high',
+        'suggestions': [],
+        'can_retry': False
+    }
+    
+    build_lower = build_output.lower()
+    
+    # Check for missing files/directories
+    if 'not found' in build_lower:
+        if '/tests' in build_output or 'tests/' in build_output or 'tests":' in build_output:
+            error_info['type'] = 'missing_directory'
+            error_info['suggestions'] = [
+                'Check if tests/ directory exists before COPY',
+                'Use conditional COPY: RUN if [ -d "tests" ]; then cp -r tests/ /app/tests/; fi',
+                'Or create empty tests/ directory if needed'
+            ]
+            error_info['can_retry'] = True
+        elif 'pyproject.toml' in build_output:
+            error_info['type'] = 'missing_file'
+            error_info['suggestions'] = [
+                'Check if pyproject.toml exists before COPY',
+                'Use conditional COPY or check file existence first'
+            ]
+            error_info['can_retry'] = True
+        elif 'sdk/typescript' in build_output or 'sdk/typescript' in build_lower:
+            error_info['type'] = 'missing_directory'
+            error_info['suggestions'] = [
+                'Check if sdk/typescript directory exists',
+                'Use conditional COPY or skip if not needed'
+            ]
+            error_info['can_retry'] = True
+    
+    # Check for setuptools conflicts
+    elif 'multiple top-level modules' in build_lower:
+        error_info['type'] = 'setuptools_conflict'
+        error_info['suggestions'] = [
+            'Move test*.py files to tests/ directory before pip install',
+            'Add to pyproject.toml: [tool.setuptools] exclude = ["test*.py"]',
+            'Or use: pip install --no-build-isolation .[dev]'
+        ]
+        error_info['can_retry'] = True
+    
+    # Check for git/patch errors
+    elif 'git apply failed' in build_lower or 'patch does not apply' in build_lower:
+        error_info['type'] = 'patch_failed'
+        error_info['suggestions'] = [
+            'Try using --3way merge (already attempted)',
+            'Use git checkout instead of patch',
+            'Skip version switch and test current code'
+        ]
+        error_info['can_retry'] = True
+    
+    elif 'cannot checkout commit' in build_lower or 'reference is not a tree' in build_lower:
+        error_info['type'] = 'git_checkout_failed'
+        error_info['suggestions'] = [
+            'Fetch from remote first (already attempted)',
+            'Check if commit exists in repository',
+            'Use current code state instead'
+        ]
+        error_info['can_retry'] = True
+    
+    # Check for dependency install failures
+    elif 'pnpm install' in build_lower and 'exit code' in build_lower:
+        error_info['type'] = 'dependency_install_failed'
+        error_info['suggestions'] = [
+            'Check network connectivity',
+            'Use mirror sources: npm config set registry https://registry.npmmirror.com',
+            'Add retry logic with exponential backoff'
+        ]
+        error_info['can_retry'] = True
+    
+    elif 'npm run build' in build_lower and 'exit code' in build_lower:
+        error_info['type'] = 'build_failed'
+        error_info['suggestions'] = [
+            'Check TypeScript compilation errors',
+            'Verify all dependencies are installed',
+            'Check for missing dependencies in package.json'
+        ]
+        error_info['can_retry'] = True
+    
+    # Check for system config issues
+    elif 'sources.list' in build_lower and 'no such file' in build_lower:
+        error_info['type'] = 'system_config'
+        error_info['suggestions'] = [
+            'Debian new version uses /etc/apt/sources.list.d/ instead',
+            'Check if file exists before modifying: if [ -f /etc/apt/sources.list ]; then ...'
+        ]
+        error_info['can_retry'] = True
+    
+    return error_info
+
+
 def find_test_file(repo_path: Path, issue_number: int) -> Optional[Path]:
     """Find test file"""
     # Possible test file names (in order of preference)
@@ -89,7 +252,15 @@ def find_test_file(repo_path: Path, issue_number: int) -> Optional[Path]:
         f"test_issue_{issue_number}.js",
     ]
     
-    # Search in repo root directory first
+    # Search in tests/ directory first (preferred location)
+    tests_dir = repo_path / 'tests'
+    if tests_dir.exists():
+        for pattern in test_patterns:
+            test_file = tests_dir / pattern
+            if test_file.exists():
+                return test_file
+    
+    # Search in repo root directory
     for pattern in test_patterns:
         test_file = repo_path / pattern
         if test_file.exists():
@@ -441,6 +612,15 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         print("Output:")
         print(output_before)
         
+        # Classify errors if build failed
+        if not success_before and 'Docker build failed' in output_before:
+            error_info = classify_build_error(output_before)
+            if error_info['type'] != 'unknown':
+                print(f"\nError classification: {error_info['type']}")
+                print("Suggestions:")
+                for suggestion in error_info['suggestions']:
+                    print(f"  - {suggestion}")
+        
         expected_before = not success_before  # Buggy version should fail
         
         # Test 2: Run on fixed version (after applying patch)
@@ -468,6 +648,15 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         print(f"\nFixed version test result: {'PASS' if success_after else 'FAIL'}")
         print("Output:")
         print(output_after)
+        
+        # Classify errors if build failed
+        if not success_after and 'Docker build failed' in output_after:
+            error_info = classify_build_error(output_after)
+            if error_info['type'] != 'unknown':
+                print(f"\nError classification: {error_info['type']}")
+                print("Suggestions:")
+                for suggestion in error_info['suggestions']:
+                    print(f"  - {suggestion}")
         
         expected_after = success_after  # Fixed version should pass
         
