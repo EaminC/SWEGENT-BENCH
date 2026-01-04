@@ -1,11 +1,11 @@
 {
-  "generated_at": "2025-12-30 12:09:46",
+  "generated_at": "2026-01-04 15:28:18",
   "statistics": {
-    "total_repos": 289,
+    "total_repos": 222,
     "from_github_archive": 48,
-    "from_github_repo": 247,
+    "from_github_repo": 180,
     "from_both": 6,
-    "multi_source": 195
+    "multi_source": 7
   },
   "repositories": [
     {
@@ -13,18 +13,17 @@
       "stars": 179520,
       "sources": [
         "github_archive_repo_2025-11-05-1h.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
-        "github_archive",
-        "github_repo"
+        "github_repo",
+        "github_archive"
       ],
       "original_sources": [
         "slavakurilyak/awesome-ai-agents",
         "Jenqyang/Awesome-AI-Agents"
       ],
-      "source_count": 3
+      "source_count": 2
     },
     {
       "name": "langflow-ai/langflow",
@@ -43,19 +42,16 @@
       "stars": 84965,
       "sources": [
         "github_archive_repo_2025-11-05-1h.json",
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
-        "github_archive",
-        "github_repo"
+        "github_repo",
+        "github_archive"
       ],
       "original_sources": [
-        "rohitg00/awesome-ai-apps",
         "Shubhamsaboo/awesome-llm-apps"
       ],
-      "source_count": 4
+      "source_count": 2
     },
     {
       "name": "google-gemini/gemini-cli",
@@ -77,8 +73,8 @@
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
-        "github_archive",
-        "github_repo"
+        "github_repo",
+        "github_archive"
       ],
       "original_sources": [
         "kyrolabs/awesome-agents"
@@ -101,8 +97,6 @@
       "name": "e2b-dev/awesome-ai-agents",
       "stars": 24860,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -111,7 +105,7 @@
       "original_sources": [
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "langchain-ai/langgraph",
@@ -130,17 +124,16 @@
       "stars": 18064,
       "sources": [
         "github_archive_repo_2025-11-05-1h.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
-        "github_archive",
-        "github_repo"
+        "github_repo",
+        "github_archive"
       ],
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 3
+      "source_count": 2
     },
     {
       "name": "google/adk-python",
@@ -159,17 +152,16 @@
       "stars": 14337,
       "sources": [
         "github_archive_repo_2025-11-05-1h.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
-        "github_archive",
-        "github_repo"
+        "github_repo",
+        "github_archive"
       ],
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 3
+      "source_count": 2
     },
     {
       "name": "coleam00/Archon",
@@ -206,21 +198,6 @@
       ],
       "original_sources": null,
       "source_count": 1
-    },
-    {
-      "name": "PaddlePaddle/PaddleNLP",
-      "stars": 12832,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "PaddlePaddle/PaddleNLP"
-      ],
-      "source_count": 2
     },
     {
       "name": "tensorzero/tensorzero",
@@ -319,20 +296,6 @@
       "source_count": 1
     },
     {
-      "name": "vijaythecoder/awesome-claude-agents",
-      "stars": 3275,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "vijaythecoder/awesome-claude-agents"
-      ],
-      "source_count": 1
-    },
-    {
       "name": "restatedev/restate",
       "stars": 3132,
       "sources": [
@@ -352,8 +315,8 @@
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
-        "github_archive",
-        "github_repo"
+        "github_repo",
+        "github_archive"
       ],
       "original_sources": [
         "Jenqyang/Awesome-AI-Agents"
@@ -418,20 +381,6 @@
         "github_archive"
       ],
       "original_sources": null,
-      "source_count": 1
-    },
-    {
-      "name": "rohitg00/awesome-ai-apps",
-      "stars": 649,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "rohitg00/awesome-ai-apps"
-      ],
       "source_count": 1
     },
     {
@@ -676,10 +625,10 @@
       "source_count": 1
     },
     {
-      "name": "emcie-co/parlant",
+      "name": "Shubhamsaboo/awesome-llm_apps",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json"
+        "github_repo_2025-12-29.json"
       ],
       "source_types": [
         "github_repo"
@@ -693,8 +642,6 @@
       "name": "HumanSignal/Adala",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -705,14 +652,12 @@
         "jim-schwoebel/awesome_ai_agents",
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "LehengTHU/Agent4Rec",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -721,14 +666,12 @@
       "original_sources": [
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "DataBassGit/AgentForge",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -737,14 +680,12 @@
       "original_sources": [
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "reworkd/AgentGPT",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -755,14 +696,12 @@
         "Jenqyang/Awesome-AI-Agents",
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "jbexta/AgentPilot",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -771,14 +710,12 @@
       "original_sources": [
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "aiwaves-cn/agents",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -788,32 +725,28 @@
         "Jenqyang/Awesome-AI-Agents",
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "OpenBMB/AgentVerse",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
         "github_repo"
       ],
       "original_sources": [
+        "hyp1231/awesome-llm-powered-agent",
         "Jenqyang/Awesome-AI-Agents",
-        "e2b-dev/awesome-ai-agents",
-        "hyp1231/awesome-llm-powered-agent"
+        "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "eumemic/ai-legion",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -822,14 +755,12 @@
       "original_sources": [
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "paul-gauthier/aider",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -839,14 +770,12 @@
         "slavakurilyak/awesome-ai-agents",
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "myshell-ai/AIlice",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -855,33 +784,29 @@
       "original_sources": [
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "microsoft/autogen",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
         "github_repo"
       ],
       "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
         "kyrolabs/awesome-agents",
+        "slavakurilyak/awesome-ai-agents",
         "Jenqyang/Awesome-AI-Agents",
         "e2b-dev/awesome-ai-agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "chadbrewbaker/ChadGPT",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -890,14 +815,12 @@
       "original_sources": [
         "fr0gger/Awesome-GPT-Agents"
       ],
-      "source_count": 3
+      "source_count": 1
     },
     {
       "name": "Casualtek/Ransomchats",
       "stars": 0,
       "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -906,1301 +829,12 @@
       "original_sources": [
         "fr0gger/Awesome-GPT-Agents"
       ],
-      "source_count": 3
-    },
-    {
-      "name": "WxxShirley/GNN4TaskPlan",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "ag2ai/ag2",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "InternLM/Agent-FLAN",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "clova-tool/clova-tool",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "RishiHazra/saycanpay",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "andyz245/LanguageAgentTreeSearch",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "agentification/RAFA_code",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "itl-ed/llm-dp",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "billxbf/ReWOO",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "yuchenlin/swiftsage",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "haotiansun14/AdaPlanner",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "Ber666/llm-reasoners",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "GuanSuns/LLMs-World-Models-for-Planning",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "RUCAIBOX/ChatCoT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "microsoft/ProphetNet",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "Cranial-XIX/llm-pddl",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "noahshinn024/reflexion",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "dki-lab/Pangu",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "ysymyth/ReAct",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "baltaci-r/CulturedAgents",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "amazon-science/comm-prompt",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "samholt/l2mac",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "SALT-NLP/DyLAN",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "zjunlp/MachineSoM",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "QiushiSun/Corex",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "S-Abdelnabi/LLM-Deliberation",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "yongchao98/multi-agent-framework",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "dinobby/ReConcile",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "mindagent/mindagent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "pku-proagent/pku-proagent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "Amir-pyh/LOGICOM",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "chanchimin/ChatEval",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "TsinghuaDatabaseGroup/DB-GPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "Gentopia-AI/Gentopia",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "geekan/MetaGPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "kyrolabs/awesome-agents",
-        "Jenqyang/Awesome-AI-Agents",
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "bcdnlp/PRD",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "MikeWangWZHL/Solo-Performance-Prompting",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "MandiZhao/robot-collab",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hyp1231/awesome-llm-powered-agent"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "RUC-GSAI/YuLan-Rec",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "zhongwanjun/MemoryBank-SiliconFriend",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "wxh1996/VideoAgent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "DCDmllm/WorldGPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "simular-ai/Agent-S",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "OS-Copilot/OS-Copilot",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "WZX0Swarm0Robotics/KARMA",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "cpacker/MemGPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "joonspk-research/generative_agents",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents",
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "HiAgent2024/HiAgent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "AIRI-Institute/AriGraph",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "FoundationAgents/awesome-foundation-agents"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "QwenLM/Qwen",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "InternLM/InternLM",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "InternLM/InternLM-techreport",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "baichuan-inc/Baichuan2",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
       "source_count": 1
-    },
-    {
-      "name": "FlagAI-Open/FlagAI",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "FlagAI-Open/Aquila",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "FlagAI-Open/Aquila2",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "agentica-project/rllm",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "NovaSky-AI/SkyRL",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "RUCAIBox/Slow_Thinking_with_LLMs",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "hkust-nlp/simpleRL-reason",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Unakar/Logic-RL",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Open-Reasoner-Zero/Open-Reasoner-Zero",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "TideDra/lmm-r1",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Deep-Agent/R1-V",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "hiyouga/EasyR1",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "alibaba/ROLL",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "sail-sg/understand-r1-zero",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Jiayi-Pan/TinyZero",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "maitrix-org/llm-reasoners",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "WangRongsheng/awesome-LLM-resourses",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "hiyouga/LLaMA-Factory",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "yangjianxin1/Firefly",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "OpenLLMAI/OpenRLHF",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "alibaba/ChatLearn",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "lm-sys/FastChat",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "tensorchord/Awesome-LLMOps"
-      ],
-      "source_count": 3
-    },
-    {
-      "name": "hpcaitech/Open-Sora",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "PKU-YuanGroup/Open-Sora-Plan",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "deepseek-ai/DeepSeek-V2",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "microsoft/unilm",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "kvcache-ai/Mooncake",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "Dao-AILab/flash-attention",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "microsoft/MInference",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-10-13.json",
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Shubhamsaboo/awesome-llm_apps",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Shubhamsaboo/awesome-llm-apps"
-      ],
-      "source_count": 2
     },
     {
       "name": "fortra/impacket",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2209,13 +843,547 @@
       "original_sources": [
         "fr0gger/Awesome-GPT-Agents"
       ],
-      "source_count": 2
+      "source_count": 1
+    },
+    {
+      "name": "WxxShirley/GNN4TaskPlan",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "ag2ai/ag2",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "InternLM/Agent-FLAN",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "clova-tool/clova-tool",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "RishiHazra/saycanpay",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "andyz245/LanguageAgentTreeSearch",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "agentification/RAFA_code",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "itl-ed/llm-dp",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "billxbf/ReWOO",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "yuchenlin/swiftsage",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "haotiansun14/AdaPlanner",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Ber666/llm-reasoners",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "GuanSuns/LLMs-World-Models-for-Planning",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "RUCAIBOX/ChatCoT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "microsoft/ProphetNet",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Cranial-XIX/llm-pddl",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "noahshinn024/reflexion",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "dki-lab/Pangu",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "ysymyth/ReAct",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "baltaci-r/CulturedAgents",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "amazon-science/comm-prompt",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "samholt/l2mac",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "SALT-NLP/DyLAN",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "zjunlp/MachineSoM",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "QiushiSun/Corex",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "S-Abdelnabi/LLM-Deliberation",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "yongchao98/multi-agent-framework",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "dinobby/ReConcile",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "mindagent/mindagent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "pku-proagent/pku-proagent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Amir-pyh/LOGICOM",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "chanchimin/ChatEval",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "TsinghuaDatabaseGroup/DB-GPT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Gentopia-AI/Gentopia",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "geekan/MetaGPT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent",
+        "slavakurilyak/awesome-ai-agents",
+        "kyrolabs/awesome-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "bcdnlp/PRD",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "MikeWangWZHL/Solo-Performance-Prompting",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "MandiZhao/robot-collab",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "hyp1231/awesome-llm-powered-agent"
+      ],
+      "source_count": 1
     },
     {
       "name": "PeterGriffinJin/Search-R1",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2224,13 +1392,96 @@
       "original_sources": [
         "FoundationAgents/awesome-foundation-agents"
       ],
-      "source_count": 2
+      "source_count": 1
+    },
+    {
+      "name": "RUC-GSAI/YuLan-Rec",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "zhongwanjun/MemoryBank-SiliconFriend",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "wxh1996/VideoAgent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "DCDmllm/WorldGPT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "simular-ai/Agent-S",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "OS-Copilot/OS-Copilot",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
     },
     {
       "name": "measure-infinity/mulan-code",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2239,13 +1490,40 @@
       "original_sources": [
         "FoundationAgents/awesome-foundation-agents"
       ],
-      "source_count": 2
+      "source_count": 1
+    },
+    {
+      "name": "cpacker/MemGPT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "WZX0Swarm0Robotics/KARMA",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
     },
     {
       "name": "agiresearch/AIOS-LSFS",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2254,13 +1532,12 @@
       "original_sources": [
         "FoundationAgents/awesome-foundation-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "posgnu/rci-agent",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2269,13 +1546,27 @@
       "original_sources": [
         "FoundationAgents/awesome-foundation-agents"
       ],
-      "source_count": 2
+      "source_count": 1
+    },
+    {
+      "name": "joonspk-research/generative_agents",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
     },
     {
       "name": "northern-lights-province/calypso-aiide-artifact",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2284,13 +1575,40 @@
       "original_sources": [
         "FoundationAgents/awesome-foundation-agents"
       ],
-      "source_count": 2
+      "source_count": 1
+    },
+    {
+      "name": "HiAgent2024/HiAgent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "AIRI-Institute/AriGraph",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "FoundationAgents/awesome-foundation-agents"
+      ],
+      "source_count": 1
     },
     {
       "name": "OSU-NLP-Group/HippoRAG",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2299,544 +1617,12 @@
       "original_sources": [
         "FoundationAgents/awesome-foundation-agents"
       ],
-      "source_count": 2
-    },
-    {
-      "name": "DeepSeek-ai/DeepSeek-V2",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "HqWu-HITCS/Awesome-Chinese-LLM"
-      ],
       "source_count": 1
-    },
-    {
-      "name": "NovaSky-AI/SkyThought",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "GAIR-NLP/O1-Journey",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "opensource-o1/Open-Source",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "krystalan/DRT-o1",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "AIDC-AI/Marco-o1",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "FreedomIntelligence/HuatuoGPT-o1",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "OpenRLHF/OpenRLHF",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "ModalMinds/MM-EUREKA",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "hijkzzz/Awesome-LLM-Strawberry"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "contextgem/contextgem",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "DataFlow/OpenDCAI",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "RL-Factory/Simple-Efficient",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "ART/OpenPipe",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "WangRongsheng/awesome-LLM-resources"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "deepseek-ai/DeepSeek-V3",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "deepseek-ai/DeepSeek-R1",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "NVIDIA/Star-Attention",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "xlite-dev/Awesome-LLM-Inference"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "NoFxAiOS/nofx",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "georgezouq/awesome-ai-in-finance"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "TauricResearch/TradingAgents",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "georgezouq/awesome-ai-in-finance"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "AI4Finance-Foundation/FinRobot",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "georgezouq/awesome-ai-in-finance"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "ollama/ollama",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "langchain-ai/langchain",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "lobehub/lobe-chat",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "OpenDevin/OpenDevin",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "OpenInterpreter/open-interpreter",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "zylon-ai/private-gpt",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "gpt-engineer-org/gpt-engineer",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "run-llama/llama_index",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "FlowiseAI/Flowise",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "mem0ai/mem0",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "calcom/cal.com",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "janhq/jan",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "OpenInterpreter/01",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "VRSEN/agency-swarm",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "jim-schwoebel/awesome_ai_agents",
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "statelyai/agent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "aibtcdev/agent-tools-ts",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "THUDM/AgentBench",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "slavakurilyak/awesome-ai-agents",
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
     },
     {
       "name": "meta-llama/llama-agentic-system",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2845,13 +1631,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "jerryjliu/llama_index",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2860,13 +1645,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "hwchase17/langchain",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2875,13 +1659,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "deepset-ai/haystack",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2890,13 +1673,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "Josh-XT/Agent-LLM",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2905,13 +1687,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "mpaepper/llm_agents",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2920,13 +1701,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "e2b-dev/e2b",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2935,13 +1715,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "dust-tt/dust",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2950,13 +1729,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "simonmesmith/agentflow",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2965,13 +1743,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "InternLM/lagent",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2980,13 +1757,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "openbmb/agentverse",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -2995,13 +1771,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "Doriandarko/maestro",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3010,13 +1785,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "modelscope/agentscope",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3025,13 +1799,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "joaomdmoura/crewai",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3040,13 +1813,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "openai/swarm",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3055,13 +1827,28 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
+    },
+    {
+      "name": "VRSEN/agency-swarm",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents",
+        "slavakurilyak/awesome-ai-agents",
+        "jim-schwoebel/awesome_ai_agents"
+      ],
+      "source_count": 1
     },
     {
       "name": "upsonic/upsonic",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3070,13 +1857,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "vectara/py-vectara-agentic",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3085,13 +1871,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "portiaAI/portia-sdk-python",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3100,13 +1885,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "AgentDock/AgentDock",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3115,13 +1899,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "hypermodeinc/modus",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3130,13 +1913,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "kyegomez/swarms",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3146,13 +1928,12 @@
         "kyrolabs/awesome-agents",
         "Jenqyang/Awesome-AI-Agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "strands-agents/sdk-python",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3161,13 +1942,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "RedDotRocket/AgentUp",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3176,13 +1956,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "VoltAgent/voltagent",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3191,13 +1970,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "kayba-ai/agentic-context-engine",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3206,13 +1984,12 @@
       "original_sources": [
         "kyrolabs/awesome-agents"
       ],
-      "source_count": 2
+      "source_count": 1
     },
     {
       "name": "iflytek/astron-agent",
       "stars": 0,
       "sources": [
-        "github_repo_2025-11-05.json",
         "github_repo_2025-12-29.json"
       ],
       "source_types": [
@@ -3220,959 +1997,6 @@
       ],
       "original_sources": [
         "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "EvoAgentX/EvoAgentX",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "All-Hands-AI/OpenHands",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Pythagora-io/gpt-pilot",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Aider-AI/aider",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "stitionai/devika",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "OpenBMB/RepoAgent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "stanfordnlp/dspy",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "alaeddine-13/thinkgpt",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "chakkaradeep/pyCodeAGI",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "TransformerOptimus/SuperAGI",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "plandex-ai/plandex",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "semanser/codel",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "csunny/DB-GPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "neurocult/agency",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "microsoft/TaskWeaver",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "aymenfurter/microagents",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "princeton-nlp/swe-agent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Jonathan-Adly/AgentRun",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Doriandarko/claude-engineer",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "landing-ai/vision-agent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "TrafficGuard/nous",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "assafelovic/gpt-researcher",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents",
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "blockpipe/blockagi",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "Technion-Kishony-lab/data-to-paper",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "SakanaAI/AI-Scientist",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "stanford-oval/storm",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "kyrolabs/awesome-agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "microsoft/JARVIS",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "yoheinakajima/babyagi",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "OpenBMB/XAgent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "RayVentura/ShortGPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "KwaiKEG/KwaiAgents",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "OpenBMB/ProAgent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "EmergenceAI/Agent-E",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "xxyQwQ/GenAgent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "MLSysOps/MLE-agent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "nottelabs/notte",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "jarrycyx/openlens-ai",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "OpenBMB/ChatDev",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "kuafuai/DevOpsGPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Liu-Hy/GenoMAS",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "giselles-ai/giselle",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "camel-ai/camel",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "a16z-infra/ai-town",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "101dotxyz/GPTeam",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Farama-Foundation/chatarena",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "SamurAIGPT/Camel-AutoGPT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "ComposioHQ/composio",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "splx-ai/agentic-radar",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "joaomdmoura/crewAI",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "lupantech/AgentFlow",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "Forethought-Technologies/AutoChain",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "modelscope/modelscope-agent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "mnotgod96/AppAgent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "homanp/superagent",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "saharmor/voice-lab",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "tsinghua-fib-lab/AgentSquare",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "MixedVoices/mixedvoices",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "kaiban-ai/KaibanJS",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "Jenqyang/Awesome-AI-Agents"
-      ],
-      "source_count": 1
-    },
-    {
-      "name": "Josh-XT/AGiXT",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "aibtcdev/ai-agent-crew",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "mshumer/ai-researcher",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "vercel/ai",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "agiresearch/AIOS",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json",
-        "github_repo_2025-12-29.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "jim-schwoebel/awesome_ai_agents"
-      ],
-      "source_count": 2
-    },
-    {
-      "name": "AI-Engineer-Foundation/agent-protocol",
-      "stars": 0,
-      "sources": [
-        "github_repo_2025-11-05.json"
-      ],
-      "source_types": [
-        "github_repo"
-      ],
-      "original_sources": [
-        "jim-schwoebel/awesome_ai_agents"
       ],
       "source_count": 1
     },
@@ -4206,6 +2030,303 @@
       "source_count": 1
     },
     {
+      "name": "EvoAgentX/EvoAgentX",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "All-Hands-AI/OpenHands",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Pythagora-io/gpt-pilot",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Aider-AI/aider",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "stitionai/devika",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "OpenBMB/RepoAgent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "stanfordnlp/dspy",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "alaeddine-13/thinkgpt",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "chakkaradeep/pyCodeAGI",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "TransformerOptimus/SuperAGI",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "plandex-ai/plandex",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "semanser/codel",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "csunny/DB-GPT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "neurocult/agency",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "microsoft/TaskWeaver",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "aymenfurter/microagents",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "princeton-nlp/swe-agent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Jonathan-Adly/AgentRun",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Doriandarko/claude-engineer",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "landing-ai/vision-agent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "TrafficGuard/nous",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "kyrolabs/awesome-agents"
+      ],
+      "source_count": 1
+    },
+    {
       "name": "sst/opencode",
       "stars": 0,
       "sources": [
@@ -4234,7 +2355,601 @@
       "source_count": 1
     },
     {
+      "name": "OpenInterpreter/01",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents",
+        "jim-schwoebel/awesome_ai_agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Josh-XT/AGiXT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "jim-schwoebel/awesome_ai_agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "aibtcdev/ai-agent-crew",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "jim-schwoebel/awesome_ai_agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "mshumer/ai-researcher",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "jim-schwoebel/awesome_ai_agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "vercel/ai",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "jim-schwoebel/awesome_ai_agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "agiresearch/AIOS",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "jim-schwoebel/awesome_ai_agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "ollama/ollama",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "langchain-ai/langchain",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "lobehub/lobe-chat",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "OpenDevin/OpenDevin",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "OpenInterpreter/open-interpreter",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "zylon-ai/private-gpt",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "gpt-engineer-org/gpt-engineer",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "run-llama/llama_index",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "FlowiseAI/Flowise",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "lm-sys/FastChat",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "mem0ai/mem0",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents",
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "calcom/cal.com",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "janhq/jan",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "statelyai/agent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "THUDM/AgentBench",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "slavakurilyak/awesome-ai-agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "assafelovic/gpt-researcher",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "microsoft/JARVIS",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "yoheinakajima/babyagi",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "OpenBMB/XAgent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "RayVentura/ShortGPT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "KwaiKEG/KwaiAgents",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "OpenBMB/ProAgent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "EmergenceAI/Agent-E",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "xxyQwQ/GenAgent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "MLSysOps/MLE-agent",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "nottelabs/notte",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "jarrycyx/openlens-ai",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
       "name": "ruc-datalab/DeepAnalyze",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "OpenBMB/ChatDev",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "kuafuai/DevOpsGPT",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Liu-Hy/GenoMAS",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "giselles-ai/giselle",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "camel-ai/camel",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "a16z-infra/ai-town",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "101dotxyz/GPTeam",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Farama-Foundation/chatarena",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "SamurAIGPT/Camel-AutoGPT",
       "stars": 0,
       "sources": [
         "github_repo_2025-12-29.json"
@@ -4262,7 +2977,91 @@
       "source_count": 1
     },
     {
+      "name": "ComposioHQ/composio",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "splx-ai/agentic-radar",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
       "name": "InternLM/agentlego",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "joaomdmoura/crewAI",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "lupantech/AgentFlow",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "Forethought-Technologies/AutoChain",
+      "stars": 0,
+      "sources": [
+        "github_repo_2025-12-29.json"
+      ],
+      "source_types": [
+        "github_repo"
+      ],
+      "original_sources": [
+        "Jenqyang/Awesome-AI-Agents"
+      ],
+      "source_count": 1
+    },
+    {
+      "name": "modelscope/modelscope-agent",
       "stars": 0,
       "sources": [
         "github_repo_2025-12-29.json"
