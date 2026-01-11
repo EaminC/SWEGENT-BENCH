@@ -28,4 +28,23 @@ quick.py
 
 # Codex repository (do not upload to GitHub)
 codex/
-
+ag2/
+AgentGPT/
+AIOS/
+automagik-genie/
+awesome-claude-agents/
+codel/
+crewAI/
+gateway/
+gpt-researcher/
+MLE-agent/
+querychat/
+restate/
+sdk-python/
+slack-mcp-client/
+software-agent-sdk/
+strix/
+SuperAGI/
+swegent/
+valuecell/
+vibe-kanban/

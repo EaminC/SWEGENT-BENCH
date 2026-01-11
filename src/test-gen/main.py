@@ -47,8 +47,23 @@ def generate_test_case(repo_path: Path, expanded_json_path: Path):
         print("Error: Cannot determine issue number from JSON")
         return False
     
+    is_file_exist = False
+    is_file2_exist = False
     expected_test_file = repo_path / f"test{issue_number}.py"
-    print(f"Expected test file: {expected_test_file}")
+    if expected_test_file.exists():
+        print(f"Expected test file: {expected_test_file}")
+        print(f"  File size: {expected_test_file.stat().st_size} bytes")
+        is_file_exist = True
+    else:
+        print(f"Expected test file does not exist: {expected_test_file}")
+
+    expected_test_file2 = repo_path / f"tests/test{issue_number}.py"
+    if expected_test_file2.exists():
+        print(f"Expected test file 2: {expected_test_file2}")
+        print(f"  File size: {expected_test_file2.stat().st_size} bytes")
+        is_file2_exist = True
+    else:
+        print(f"Expected test file 2 does not exist: {expected_test_file2}")
     
     script_dir = Path(__file__).parent
     claude_script = script_dir / "claude" / "run_claude.py"
@@ -67,11 +82,8 @@ def generate_test_case(repo_path: Path, expanded_json_path: Path):
     
     # Verify test file was created
     print(f"\nVerifying test file was created...")
-    if expected_test_file.exists():
+    if is_file_exist or is_file2_exist:
         print(f"✓ Test file created successfully: {expected_test_file}")
-        # Show file size
-        file_size = expected_test_file.stat().st_size
-        print(f"  File size: {file_size} bytes")
         return True
     else:
         print(f"✗ Error: Test file was not created at expected location: {expected_test_file}")

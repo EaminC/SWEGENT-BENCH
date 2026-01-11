@@ -206,7 +206,7 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
    - Is self-contained and can run independently
 
 4. Save the test file with the exact filename: test{issue_number}.py
-   - If tests/ directory exists, save there: tests/test{issue_number}.py
+   - If tests/ directory exists, save there: tests/test{issue_number}.py and also save the test{issue_number}.py in repository root: test{issue_number}.py
    - Otherwise, save in repository root: test{issue_number}.py
    For example, if issue number is 128, save it as: test128.py
    IMPORTANT: The filename must be exactly "test{issue_number}.py" (no underscores, no prefixes)

@@ -37,6 +37,58 @@ def get_head_sha(pr_info: dict) -> Optional[str]:
     return pr_info.get('head_sha')
 
 
+def force_clean_repo(repo_path: Path, protected_paths: list[Path] = None):
+    """
+    Force cleans the repository to remove untracked files (like .prettierrc.toml)
+    BUT preserves critical generated files (Dockerfile, test scripts).
+    """
+    try:
+        print(f"   Cleaning repository at {repo_path}...")
+        
+        # 1. Reset tracked files to HEAD (reverts modifications to tracked files)
+        #    This does NOT delete new untracked files.
+        subprocess.run(
+            ['git', 'reset', '--hard', 'HEAD'], 
+            cwd=repo_path, 
+            check=True, 
+            capture_output=True
+        )
+        
+        # 2. Build git clean command with exclusions
+        clean_cmd = ['git', 'clean', '-fd']
+        
+        if protected_paths:
+            for p in protected_paths:
+                try:
+                    # git clean -e requires paths relative to the repo root
+                    # We convert absolute paths to relative ones
+                    if p.is_absolute():
+                        rel_path = p.relative_to(repo_path.resolve())
+                    else:
+                        rel_path = p
+                    
+                    # Add exclusion flag
+                    clean_cmd.extend(['-e', str(rel_path)])
+                    print(f"   Note: Protecting file {rel_path}")
+                except ValueError:
+                    # File is outside repo (e.g. /tmp/...), safe from git clean
+                    pass
+
+        # 3. Run git clean (Removes untracked files EXCEPT protected ones)
+        result = subprocess.run(
+            clean_cmd, 
+            cwd=repo_path, 
+            check=True, 
+            capture_output=True,
+            text=True
+        )
+        
+        print(f"   ✓ Repository cleaned (preserved protected files).")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error cleaning repository: {e.stderr if e.stderr else str(e)}")
+        return False
+
 def apply_patch(repo_path: Path, patch_content: str) -> bool:
     """Apply patch to repository with multiple strategies"""
     try:
@@ -416,15 +468,17 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
     # Run test
     # Use absolute path since docker run executes in container
     test_relative_path = test_file.relative_to(repo_path)
+    # Ensure path uses forward slashes for Docker compatibility
+    test_relative_path = str(test_relative_path).replace('\\', '/')
     
     # Try different test run methods
     run_commands = [
         # Method 1: Run python file directly (most reliable)
-        ['python3', str(test_relative_path)],
+        ['python3', test_relative_path],
         # Method 2: Run as unittest module
-        ['python3', '-m', 'unittest', str(test_relative_path).replace('.py', '').replace('/', '.')],
+        ['python3', '-m', 'unittest', test_relative_path.replace('.py', '').replace('/', '.')],
         # Method 3: Use python -m unittest discover
-        ['python3', '-m', 'unittest', 'discover', '-s', str(test_relative_path.parent), '-p', test_file.name],
+        ['python3', '-m', 'unittest', 'discover', '-s', str(test_file.parent).replace('\\', '/'), '-p', test_file.name],
     ]
     
     for i, run_cmd in enumerate(run_commands, 1):
@@ -632,6 +686,7 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
             # Apply patch
             if not apply_patch(repo_path, patch_content):
                 print("Warning: Cannot apply patch, trying to checkout head SHA")
+                force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
                 head_sha = get_head_sha(pr_info)
                 if head_sha:
                     checkout_commit(repo_path, head_sha)
