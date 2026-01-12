@@ -26,6 +26,16 @@ def build_prompt(repo_build_dir, feedback: Optional[str] = None):
     """Build the comprehensive prompt with all context files."""
     prompt_parts = []
     
+    # Check for repository structure info from environment
+    repo_structure_json = os.getenv("REPO_STRUCTURE")
+    repo_structure = None
+    if repo_structure_json:
+        try:
+            import json
+            repo_structure = json.loads(repo_structure_json)
+        except Exception:
+            pass
+    
     # Load base prompt
     prompt_file = repo_build_dir / "prompt.txt"
     base_prompt = load_file_content(prompt_file).strip()
@@ -64,8 +74,15 @@ BASE IMAGE SELECTION (VERY IMPORTANT):
 - For Python projects: Use 'python:3.12-slim' or 'python:3.11-slim' (STRONGLY RECOMMENDED)
 - For Node.js projects: Use 'node:20-slim' or 'node:18-slim'
 - For Python+Node.js: Start from 'python:3.12-slim' and install Node.js on top
+- For Rust projects: Use 'rust:1.75-slim' or 'rust:latest'
 - AVOID debian:bullseye-slim or ubuntu (causes dependency issues like gnupg problems)
 - Official language images are pre-configured and more reliable
+
+PROJECT TYPE DETECTION:
+- Check for Cargo.toml: This is a Rust project, use cargo build, NOT pip install
+- Check for package.json: This is a Node.js/TypeScript project
+- Check for requirements.txt or setup.py: This is a Python project
+- Check for pyproject.toml: This is a Python project (may use poetry)
 
 YOUR TASK:
 When creating/configuring the Dockerfile, you need to:
@@ -95,6 +112,48 @@ The Dockerfile MUST install and configure Python unittest framework:
 - Ensure Python can import unittest module: `python -c "import unittest"`
 - If the repository has test requirements, install them (e.g., requirements-test.txt, test-requirements.txt)
 - Make sure the environment is ready to run: `python -m unittest discover` or `python -m pytest` if pytest is used
+
+CRITICAL DOCKERFILE BEST PRACTICES:
+
+1. FILE EXISTENCE CHECKS:
+   - ALWAYS check if files exist before COPY: `RUN if [ -f "file.txt" ]; then cp file.txt /app/; fi`
+   - ALWAYS check if directories exist before COPY: `RUN if [ -d "tests" ]; then cp -r tests/ /app/tests/; fi`
+   - NEVER assume files exist - use conditional commands
+
+2. PNPM GLOBAL CONFIGURATION:
+   - If using `pnpm link --global`, set: `ENV PNPM_HOME=/root/.local/share/pnpm`
+   - Add to PATH: `ENV PATH="$PNPM_HOME:$PATH"`
+   - Or avoid --global flag if not needed
+
+3. PYTHON PACKAGE INSTALLATION (PEP 668):
+   - For Python 3.11+, use virtual environment: `RUN python3 -m venv /venv && /venv/bin/pip install ...`
+   - Or use: `RUN pip install --break-system-packages ...`
+   - Or use: `RUN pip install --user ...`
+
+4. COMPILATION DEPENDENCIES:
+   - For packages like lxml, install system libraries first:
+     `RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev python3-dev gcc`
+   - Then install Python packages: `RUN pip install lxml`
+
+5. POETRY INSTALLATION:
+   - Install via pipx: `RUN pipx install poetry`
+   - Add to PATH: `ENV PATH="/root/.local/bin:$PATH"`
+   - Or use pip: `RUN pip install poetry`
+
+6. RUST PROJECTS:
+   - If Cargo.toml exists, this is a Rust project
+   - Use `cargo build` NOT `pip install`
+   - Install Rust toolchain if needed: `RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y`
+
+7. PATH HANDLING:
+   - Always use forward slashes in paths: `/workspace/tests/test.py`
+   - Never use Windows-style backslashes: `\\workspace\\tests\\test.py`
+   - Normalize paths in RUN commands
+
+8. NETWORK ERRORS:
+   - Add retry logic for network operations
+   - Use mirrors for package managers if needed
+   - Consider using --network=host for Docker builds if network issues persist
 
 APPROACH:
 1. Set environment variables in the Dockerfile using ENV directives
@@ -156,6 +215,21 @@ APPROACH:
         prompt_parts.append("")
         prompt_parts.append("Please analyze the errors above and generate an improved Dockerfile that fixes these issues.")
         prompt_parts.append("Focus on the specific errors shown in the feedback.")
+        prompt_parts.append("")
+    
+    # Add repository structure information if available
+    if repo_structure:
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("REPOSITORY STRUCTURE INFORMATION")
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("The following files/directories exist (or don't exist) in this repository:")
+        prompt_parts.append("")
+        for key, exists in repo_structure.items():
+            status = "✓ EXISTS" if exists else "✗ DOES NOT EXIST"
+            prompt_parts.append(f"  {status}: {key}")
+        prompt_parts.append("")
+        prompt_parts.append("IMPORTANT: Only COPY files/directories that EXIST. Use conditional COPY or check existence first.")
+        prompt_parts.append("Example: RUN if [ -f \"requirements.txt\" ]; then pip install -r requirements.txt; fi")
         prompt_parts.append("")
     
     prompt_parts.append("=" * 80)

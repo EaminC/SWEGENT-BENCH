@@ -290,6 +290,97 @@ def classify_build_error(build_output: str) -> Dict[str, any]:
         ]
         error_info['can_retry'] = True
     
+    # Check for pnpm link --global issues
+    elif 'pnpm link --global' in build_output or 'pnpm does not know where to store global binaries' in build_lower:
+        error_info['type'] = 'pnpm_global_config'
+        error_info['suggestions'] = [
+            'Set PNPM_HOME environment variable: ENV PNPM_HOME=/root/.local/share/pnpm',
+            'Add to PATH: ENV PATH="$PNPM_HOME:$PATH"',
+            'Or remove --global flag from pnpm link command'
+        ]
+        error_info['can_retry'] = True
+    
+    # Check for externally-managed-environment (PEP 668)
+    elif 'externally-managed-environment' in build_lower or 'pep 668' in build_lower:
+        error_info['type'] = 'pep668_error'
+        error_info['suggestions'] = [
+            'Use virtual environment: RUN python3 -m venv /venv && /venv/bin/pip install ...',
+            'Or use --break-system-packages flag: RUN pip install --break-system-packages ...',
+            'Or use --user flag: RUN pip install --user ...'
+        ]
+        error_info['can_retry'] = True
+    
+    # Check for lxml compilation errors (missing C libraries)
+    elif 'lxml' in build_lower and ('error' in build_lower or 'failed' in build_lower):
+        if 'gcc' in build_lower or 'compilation' in build_lower or 'c extension' in build_lower:
+            error_info['type'] = 'missing_c_libraries'
+            error_info['suggestions'] = [
+                'Install build dependencies: RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev python3-dev gcc',
+                'For lxml specifically: RUN apt-get install -y libxml2-dev libxslt1-dev'
+            ]
+            error_info['can_retry'] = True
+    
+    # Check for poetry executable not found
+    elif 'poetry executable not found' in build_lower or 'poetry: command not found' in build_lower:
+        error_info['type'] = 'poetry_not_found'
+        error_info['suggestions'] = [
+            'Install poetry via pipx: RUN pipx install poetry',
+            'Add pipx bin to PATH: ENV PATH="/root/.local/bin:$PATH"',
+            'Or use pip: RUN pip install poetry'
+        ]
+        error_info['can_retry'] = True
+    
+    # Check for Rust project trying to use pip install
+    elif 'cargo.toml' in build_lower and ('pip install' in build_lower or 'setup.py' in build_lower):
+        error_info['type'] = 'rust_project_error'
+        error_info['suggestions'] = [
+            'This is a Rust project, not Python',
+            'Remove pip install commands from Dockerfile',
+            'Use cargo build instead: RUN cargo build --release'
+        ]
+        error_info['can_retry'] = False  # This is a fundamental error, retry won't help
+    
+    # Check for network errors
+    elif 'network' in build_lower or 'timeout' in build_lower or 'could not connect' in build_lower:
+        if 'docker.io' in build_output or 'auth.docker.io' in build_output:
+            error_info['type'] = 'docker_network_error'
+            error_info['suggestions'] = [
+                'Check network connectivity',
+                'Retry Docker build with --network=host',
+                'Use Docker mirror if available'
+            ]
+            error_info['can_retry'] = True
+        else:
+            error_info['type'] = 'network_error'
+            error_info['suggestions'] = [
+                'Check network connectivity',
+                'Add retry logic to install commands',
+                'Use mirror sources for package managers'
+            ]
+            error_info['can_retry'] = True
+    
+    # Check for Windows path separator issues
+    elif '\\\\' in build_output or '\\test' in build_output.lower():
+        error_info['type'] = 'path_separator_error'
+        error_info['suggestions'] = [
+            'Use forward slashes in paths: /workspace/tests/test350.py',
+            'Normalize paths: RUN python3 /workspace/tests/test350.py',
+            'Check path handling in test execution'
+        ]
+        error_info['can_retry'] = True
+    
+    # Check for ModuleNotFoundError with 'platform' module
+    elif 'modulenotfounderror' in build_lower and 'platform' in build_lower:
+        if 'platform.reworkd_platform' in build_output or "'platform' is not a package" in build_output:
+            error_info['type'] = 'module_import_error'
+            error_info['suggestions'] = [
+                'Check Python path configuration',
+                'Ensure the repository root is in PYTHONPATH',
+                'Use absolute imports instead of relative imports',
+                'Check if there is a directory named "platform" conflicting with Python stdlib'
+            ]
+            error_info['can_retry'] = True
+    
     return error_info
 
 
@@ -468,17 +559,24 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
     # Run test
     # Use absolute path since docker run executes in container
     test_relative_path = test_file.relative_to(repo_path)
-    # Ensure path uses forward slashes for Docker compatibility
-    test_relative_path = str(test_relative_path).replace('\\', '/')
+    # Ensure path uses forward slashes for Docker compatibility (normalize all backslashes)
+    test_relative_path_str = str(test_relative_path).replace('\\', '/')
+    # Also normalize the parent directory path
+    test_parent_path = str(test_file.parent).replace('\\', '/')
+    
+    # Use absolute path in container to avoid path issues
+    test_absolute_path = f"/workspace/{test_relative_path_str}"
     
     # Try different test run methods
     run_commands = [
-        # Method 1: Run python file directly (most reliable)
-        ['python3', test_relative_path],
-        # Method 2: Run as unittest module
-        ['python3', '-m', 'unittest', test_relative_path.replace('.py', '').replace('/', '.')],
-        # Method 3: Use python -m unittest discover
-        ['python3', '-m', 'unittest', 'discover', '-s', str(test_file.parent).replace('\\', '/'), '-p', test_file.name],
+        # Method 1: Run python file directly with absolute path (most reliable)
+        ['python3', test_absolute_path],
+        # Method 2: Run with relative path (fallback)
+        ['python3', test_relative_path_str],
+        # Method 3: Run as unittest module
+        ['python3', '-m', 'unittest', test_relative_path_str.replace('.py', '').replace('/', '.')],
+        # Method 4: Use python -m unittest discover
+        ['python3', '-m', 'unittest', 'discover', '-s', test_parent_path, '-p', test_file.name],
     ]
     
     for i, run_cmd in enumerate(run_commands, 1):
@@ -529,7 +627,7 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
                     '-v', f'{repo_path}:/workspace',
                     '-w', '/workspace',
                     image_name,
-                    alt_python, str(test_relative_path)
+                    alt_python, test_absolute_path if 'absolute' in locals() else test_relative_path_str
                 ]
                 alt_result = subprocess.run(alt_cmd, capture_output=True, text=True, timeout=300)
                 if alt_result.returncode == 0:

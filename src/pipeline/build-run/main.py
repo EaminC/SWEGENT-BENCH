@@ -21,6 +21,22 @@ from forge.api import LLMClient
 import importlib.util
 
 
+def validate_repo_structure(repo_path: Path) -> Dict[str, bool]:
+    """Check repository structure for common files/directories"""
+    structure = {
+        'has_tests_dir': (repo_path / 'tests').exists(),
+        'has_pyproject': (repo_path / 'pyproject.toml').exists(),
+        'has_poetry_lock': (repo_path / 'poetry.lock').exists(),
+        'has_package_json': (repo_path / 'package.json').exists(),
+        'has_requirements_txt': (repo_path / 'requirements.txt').exists(),
+        'has_setup_py': (repo_path / 'setup.py').exists(),
+        'has_sdk_typescript': (repo_path / 'sdk' / 'typescript').exists(),
+        'has_cargo_toml': (repo_path / 'Cargo.toml').exists(),  # For Rust projects
+        'has_requirements_test_txt': (repo_path / 'requirements-test.txt').exists(),
+    }
+    return structure
+
+
 def agentless_init_dockerfile(repo_path: Path) -> bool:
     """
     Use agentless method to initialize env.dockerfile
@@ -218,13 +234,60 @@ def build_docker_image(repo_path: Path, dockerfile_name: str = "claude.dockerfil
         str(repo_path)
     ]
     
+    # Check for network errors and retry
+    max_retries = 3
+    retry_count = 0
+    
+    while retry_count < max_retries:
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=600  # 10 minute timeout
+            )
+            
+            output = result.stdout + result.stderr
+            
+            # Check if it's a network error
+            is_network_error = (
+                'network' in output.lower() or 
+                'timeout' in output.lower() or 
+                'could not connect' in output.lower() or
+                'failed to solve' in output.lower() and 'docker.io' in output
+            )
+            
+            # If network error and not last retry, wait and retry
+            if is_network_error and result.returncode != 0 and retry_count < max_retries - 1:
+                retry_count += 1
+                wait_time = 2 ** retry_count  # Exponential backoff: 2, 4, 8 seconds
+                print(f"⚠ Network error detected, retrying in {wait_time} seconds (attempt {retry_count}/{max_retries})...")
+                import time
+                time.sleep(wait_time)
+                continue
+            
+            # Break out of retry loop if successful or non-network error
+            break
+            
+        except subprocess.TimeoutExpired:
+            if retry_count < max_retries - 1:
+                retry_count += 1
+                wait_time = 2 ** retry_count
+                print(f"⚠ Build timed out, retrying in {wait_time} seconds (attempt {retry_count}/{max_retries})...")
+                import time
+                time.sleep(wait_time)
+                continue
+            else:
+                return False, "Docker build timed out after 10 minutes (multiple retries failed)"
+        except Exception as e:
+            return False, f"Error building Docker image: {e}"
+    
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=600  # 10 minute timeout
-        )
+        result  # Make sure result is defined
+    except NameError:
+        return False, "Docker build failed after retries"
+    
+    try:
         
         output = result.stdout + result.stderr
         
@@ -618,8 +681,9 @@ def classify_build_error_simple(build_output: str) -> Dict[str, any]:
     
     build_lower = build_output.lower()
     
+    # Check for missing files/directories
     if 'not found' in build_lower:
-        if '/tests' in build_output or 'tests/' in build_output:
+        if '/tests' in build_output or 'tests/' in build_output or 'tests\\' in build_output:
             error_info['type'] = 'missing_directory'
             error_info['suggestions'] = [
                 'Check if tests/ directory exists before COPY',
@@ -628,40 +692,90 @@ def classify_build_error_simple(build_output: str) -> Dict[str, any]:
         elif 'pyproject.toml' in build_output:
             error_info['type'] = 'missing_file'
             error_info['suggestions'] = ['Check if pyproject.toml exists before COPY']
+        elif 'requirements.txt' in build_output or 'requirements-test.txt' in build_output:
+            error_info['type'] = 'missing_file'
+            error_info['suggestions'] = [
+                'Check if requirements.txt exists before COPY',
+                'Use conditional COPY: RUN if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi'
+            ]
+    # Check for setuptools conflicts
     elif 'multiple top-level modules' in build_lower:
         error_info['type'] = 'setuptools_conflict'
         error_info['suggestions'] = [
             'Move test*.py files to tests/ directory',
             'Exclude test files in pyproject.toml'
         ]
-    
-    return error_info
-
-
-def classify_build_error_simple(build_output: str) -> Dict[str, any]:
-    """Simple error classifier for build output"""
-    error_info = {
-        'type': 'unknown',
-        'suggestions': []
-    }
-    
-    build_lower = build_output.lower()
-    
-    if 'not found' in build_lower:
-        if '/tests' in build_output or 'tests/' in build_output:
-            error_info['type'] = 'missing_directory'
-            error_info['suggestions'] = [
-                'Check if tests/ directory exists before COPY',
-                'Use conditional COPY or create empty directory'
-            ]
-        elif 'pyproject.toml' in build_output:
-            error_info['type'] = 'missing_file'
-            error_info['suggestions'] = ['Check if pyproject.toml exists before COPY']
-    elif 'multiple top-level modules' in build_lower:
-        error_info['type'] = 'setuptools_conflict'
+    # Check for pnpm link --global issues
+    elif 'pnpm link --global' in build_output or 'pnpm does not know where to store global binaries' in build_lower:
+        error_info['type'] = 'pnpm_global_config'
         error_info['suggestions'] = [
-            'Move test*.py files to tests/ directory',
-            'Exclude test files in pyproject.toml'
+            'Set PNPM_HOME environment variable: ENV PNPM_HOME=/root/.local/share/pnpm',
+            'Add to PATH: ENV PATH="$PNPM_HOME:$PATH"',
+            'Or remove --global flag from pnpm link command'
+        ]
+    # Check for externally-managed-environment (PEP 668)
+    elif 'externally-managed-environment' in build_lower or 'pep 668' in build_lower:
+        error_info['type'] = 'pep668_error'
+        error_info['suggestions'] = [
+            'Use virtual environment: RUN python3 -m venv /venv && /venv/bin/pip install ...',
+            'Or use --break-system-packages flag: RUN pip install --break-system-packages ...',
+            'Or use --user flag: RUN pip install --user ...'
+        ]
+    # Check for lxml compilation errors (missing C libraries)
+    elif 'lxml' in build_lower and ('error' in build_lower or 'failed' in build_lower):
+        if 'gcc' in build_lower or 'compilation' in build_lower or 'c extension' in build_lower:
+            error_info['type'] = 'missing_c_libraries'
+            error_info['suggestions'] = [
+                'Install build dependencies: RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev python3-dev gcc',
+                'For lxml specifically: RUN apt-get install -y libxml2-dev libxslt1-dev'
+            ]
+    # Check for poetry executable not found
+    elif 'poetry executable not found' in build_lower or 'poetry: command not found' in build_lower:
+        error_info['type'] = 'poetry_not_found'
+        error_info['suggestions'] = [
+            'Install poetry via pipx: RUN pipx install poetry',
+            'Add pipx bin to PATH: ENV PATH="/root/.local/bin:$PATH"',
+            'Or use pip: RUN pip install poetry'
+        ]
+    # Check for Rust project trying to use pip install
+    elif 'cargo.toml' in build_lower and ('pip install' in build_lower or 'setup.py' in build_lower):
+        error_info['type'] = 'rust_project_error'
+        error_info['suggestions'] = [
+            'This is a Rust project, not Python',
+            'Remove pip install commands from Dockerfile',
+            'Use cargo build instead: RUN cargo build --release'
+        ]
+    # Check for commit not found
+    elif 'commit' in build_lower and ('not found' in build_lower or 'does not exist' in build_lower):
+        error_info['type'] = 'commit_not_found'
+        error_info['suggestions'] = [
+            'Fetch from remote: RUN git fetch --all',
+            'Check if commit exists in repository',
+            'Use current code state instead'
+        ]
+    # Check for network errors
+    elif 'network' in build_lower or 'timeout' in build_lower or 'could not connect' in build_lower:
+        if 'docker.io' in build_output or 'auth.docker.io' in build_output:
+            error_info['type'] = 'docker_network_error'
+            error_info['suggestions'] = [
+                'Check network connectivity',
+                'Retry Docker build with --network=host',
+                'Use Docker mirror if available'
+            ]
+        else:
+            error_info['type'] = 'network_error'
+            error_info['suggestions'] = [
+                'Check network connectivity',
+                'Add retry logic to install commands',
+                'Use mirror sources for package managers'
+            ]
+    # Check for Windows path separator issues
+    elif '\\\\' in build_output or '\\test' in build_output.lower():
+        error_info['type'] = 'path_separator_error'
+        error_info['suggestions'] = [
+            'Use forward slashes in paths: /workspace/tests/test350.py',
+            'Normalize paths: RUN python3 /workspace/tests/test350.py',
+            'Check path handling in test execution'
         ]
     
     return error_info
@@ -983,9 +1097,9 @@ def main():
                 print("-" * 80)
             
             # Check if test is valid (buggy failed AND fixed passed)
-                print(f"\n{'='*80}")
+            print(f"\n{'='*80}")
             print("Test Verification Result:")
-                print(f"{'='*80}")
+            print(f"{'='*80}")
             print(f"  Buggy version: {'FAIL ✓' if buggy_failed else 'PASS ✗ (should fail!)'}")
             
             fixed_passed = "Fixed version test: ✓ Passed as expected" in test_output
@@ -1032,10 +1146,10 @@ def main():
                     print(f"\n✗ Co-fix generation failed (iteration {cofix_iteration})")
                     if cofix_iteration < args.max_cofix_retries:
                         print("Retrying co-fix...")
-                continue
-            else:
+                        continue
+                    else:
                         print("\nMax co-fix retries reached")
-                break
+                        break
                 
                 print("\n✓ Agent generated fixes for both files")
                 print("Re-running test verification...")
@@ -1056,7 +1170,7 @@ def main():
                     if len(output_lines) > 50:
                         print("\n".join(output_lines[-50:]))
                         print(f"\n... (showing last 50 lines of {len(output_lines)} total lines)")
-        else:
+                    else:
                         print(test_output)
                     print("-" * 80)
                 
