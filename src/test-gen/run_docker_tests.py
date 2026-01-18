@@ -39,14 +39,24 @@ def get_head_sha(pr_info: dict) -> Optional[str]:
 
 def force_clean_repo(repo_path: Path, protected_paths: list[Path] = None):
     """
-    Force cleans the repository to remove untracked files (like .prettierrc.toml)
-    BUT preserves critical generated files (Dockerfile, test scripts).
+    Force cleans the repository to remove untracked files.
+    Uses Backup -> Clean -> Restore strategy to guarantee file safety.
     """
     try:
         print(f"   Cleaning repository at {repo_path}...")
         
-        # 1. Reset tracked files to HEAD (reverts modifications to tracked files)
-        #    This does NOT delete new untracked files.
+        # 1. Backup Protected Files to Memory
+        saved_files = {}
+        if protected_paths:
+            for p in protected_paths:
+                if p.exists() and p.is_file():
+                    try:
+                        saved_files[p] = p.read_bytes()
+                        print(f"   ✓ Backed up: {p.name}")
+                    except Exception as e:
+                        print(f"   ⚠ Warning: Could not backup {p.name}: {e}")
+
+        # 2. Reset tracked files (Revert modifications to known files)
         subprocess.run(
             ['git', 'reset', '--hard', 'HEAD'], 
             cwd=repo_path, 
@@ -54,39 +64,32 @@ def force_clean_repo(repo_path: Path, protected_paths: list[Path] = None):
             capture_output=True
         )
         
-        # 2. Build git clean command with exclusions
-        clean_cmd = ['git', 'clean', '-fd']
-        
-        if protected_paths:
-            for p in protected_paths:
-                try:
-                    # git clean -e requires paths relative to the repo root
-                    # We convert absolute paths to relative ones
-                    if p.is_absolute():
-                        rel_path = p.relative_to(repo_path.resolve())
-                    else:
-                        rel_path = p
-                    
-                    # Add exclusion flag
-                    clean_cmd.extend(['-e', str(rel_path)])
-                    print(f"   Note: Protecting file {rel_path}")
-                except ValueError:
-                    # File is outside repo (e.g. /tmp/...), safe from git clean
-                    pass
-
-        # 3. Run git clean (Removes untracked files EXCEPT protected ones)
-        result = subprocess.run(
-            clean_cmd, 
+        # 3. Clean untracked files (Nuke everything else)
+        subprocess.run(
+            ['git', 'clean', '-fd'], 
             cwd=repo_path, 
             check=True, 
-            capture_output=True,
-            text=True
+            capture_output=True
         )
         
-        print(f"   ✓ Repository cleaned (preserved protected files).")
+        # 4. Restore Protected Files
+        for p, content in saved_files.items():
+            try:
+                # Ensure parent directory exists (in case git clean deleted 'tests/')
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_bytes(content)
+                print(f"   ✓ Restored: {p.name}")
+            except Exception as e:
+                print(f"   ✗ Error restoring {p.name}: {e}")
+                
+        print(f"   ✓ Repository cleaned.")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Error cleaning repository: {e.stderr if e.stderr else str(e)}")
+        # Handle stderr whether it's bytes or string
+        error_msg = e.stderr
+        if hasattr(error_msg, 'decode'):
+            error_msg = error_msg.decode()
+        print(f"Error cleaning repository: {error_msg if error_msg else str(e)}")
         return False
 
 def apply_patch(repo_path: Path, patch_content: str) -> bool:
@@ -177,6 +180,7 @@ def checkout_commit(repo_path: Path, sha: str) -> bool:
             print(f"Error: Cannot checkout commit {sha}: {result.stderr}")
             return False
         
+        print(f"✓ Checked out commit {sha}")
         return True
     except Exception as e:
         print(f"Error: Failed to checkout commit: {e}")
@@ -382,6 +386,36 @@ def classify_build_error(build_output: str) -> Dict[str, any]:
             error_info['can_retry'] = True
     
     return error_info
+
+def find_fix_commit_from_git_log(repo_path: Path, pr_number: int, issue_number: int) -> Optional[str]:
+    """
+    Finds the SHA of the commit that FIXED the issue (The Merge Commit).
+    """
+    print(f"  ⚠ SHA missing. Searching git log for PR #{pr_number} / Issue #{issue_number}...")
+    
+    # Patterns to find the FIX (Merge or Squash)
+    patterns = [
+        f"Merge pull request #{pr_number}",
+        f"(#{pr_number})",            # Squash merge pattern
+        f"Fixes #{issue_number}",
+        f"Closes #{issue_number}",
+        f"Resolves #{issue_number}"
+    ]
+    
+    for pattern in patterns:
+        try:
+            # -n 1: only first match
+            cmd = ['git', 'log', '--grep', pattern, '-n', '1', '--format=%H']
+            result = subprocess.run(cmd, cwd=repo_path, capture_output=True, text=True)
+            
+            if result.returncode == 0 and result.stdout.strip():
+                sha = result.stdout.strip()
+                print(f"   ✓ Found fix commit in log: {sha[:8]} (matched '{pattern}')")
+                return sha
+        except Exception:
+            continue
+            
+    return None
 
 
 def find_test_file(repo_path: Path, issue_number: int) -> Optional[Path]:
@@ -619,7 +653,7 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
             
             # Try alternative Python paths
             print(f"    Trying alternative Python paths...")
-            alt_python_paths = ['python', '/usr/bin/python3', 'python3.9', 'python3.10', 'python3.11']
+            alt_python_paths = ['python', '/usr/bin/python3', 'python3.10', 'python3.9', 'python3.11']
             for alt_python in alt_python_paths:
                 alt_cmd = [
                     'docker', 'run', '--rm',
@@ -706,11 +740,14 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
     
     # Get patch
     patch_content = pr_info.get('patch')
+    use_patch = True
     if not patch_content:
         print("Warning: PR has no patch information, will try using git checkout")
         use_patch = False
     else:
         use_patch = True
+
+    print(f"\nUsing patch: {'Yes' if use_patch else 'No'}")
     
     # Save current git state
     original_branch = subprocess.run(
@@ -739,22 +776,59 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
             return False
         
         print(f"Found test file: {test_file}")
+
+        # ==============================================================================
+        # SHA RESOLUTION PHASE
+        # ==============================================================================
+        # We try to identify the Git SHAs for both versions before running tests
+        
+        pr_number = pr_info.get('number')
+
+        # 1. Resolve FIXED SHA (The Merge Commit)
+        fixed_sha = get_head_sha(pr_info)
+        if not fixed_sha and pr_number:
+            # Fallback: Search Git Log
+            fixed_sha = find_fix_commit_from_git_log(repo_path, pr_number, issue_number)
+            
+        # 2. Resolve BUGGY SHA (The Parent of the Fix)
+        buggy_sha = get_base_sha(pr_info)
+        if not buggy_sha and fixed_sha:
+            # Fallback: Calculate Parent of Fixed SHA
+            try:
+                res = subprocess.run(['git', 'rev-parse', f'{fixed_sha}^1'], 
+                                   cwd=repo_path, capture_output=True, text=True)
+                if res.returncode == 0:
+                    buggy_sha = res.stdout.strip()
+                    print(f"   ✓ Calculated Buggy SHA (Parent): {buggy_sha[:8]}")
+            except Exception:
+                pass
         
         # Test 1: Run on buggy version (before applying patch)
         print(f"\n{'='*80}")
         print("Test 1: Buggy Version (before applying patch)")
         print(f"{'='*80}")
+
+        # --- START OF INTEGRATION ---
+        checkout_success = False
         
-        if use_patch:
-            # Restore to base state
-            base_sha = get_base_sha(pr_info)
-            if base_sha:
-                if not checkout_commit(repo_path, base_sha):
-                    print("Warning: Cannot checkout base SHA, using current state")
-            else:
-                print("Warning: No base SHA found in PR info, using current state")
-        else:
-            print("Note: No patch information, using current git state as buggy version")
+        ## Strategy: Checkout Buggy SHA
+        if buggy_sha:
+            print(f"Checking out buggy version: {buggy_sha[:8]}...")
+            force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
+            checkout_success = checkout_commit(repo_path, buggy_sha)
+        
+        if not checkout_success:
+            print("WARNING: Could not checkout buggy commit. Using CURRENT git state.")
+        
+        # if use_patch:
+        #     base_sha = get_base_sha(pr_info)
+        #     if base_sha:
+        #         if not checkout_commit(repo_path, base_sha):
+        #             print("Warning: Cannot checkout base SHA, using current state")
+        #     else:
+        #         print("Warning: No base SHA found in PR info, using current state")
+        # else:
+        #     print("Note: No patch information, using current git state as buggy version")
         
         success_before, output_before = run_test_in_docker(
             repo_path, dockerfile_path, test_file, "Buggy Version"
@@ -779,20 +853,49 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         print(f"\n{'='*80}")
         print("Test 2: Fixed Version (after applying patch)")
         print(f"{'='*80}")
+
+        fixed_checkout_success = False
+
+        # STRATEGY A: Explicit Checkout (Preferred)
+        if fixed_sha:
+            print(f"Strategy A: Checking out fixed commit: {fixed_sha[:8]}...")
+            force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
+            fixed_checkout_success = checkout_commit(repo_path, fixed_sha)
+            
+        # STRATEGY B: Apply Patch (Fallback if checkout fails or SHA missing)
+        if not fixed_checkout_success:
+            if use_patch and patch_content:
+                print(f"Strategy B: Checkout failed or SHA missing. Applying patch to buggy version...")
+                # Ensure we are on buggy version first to apply patch cleanly
+                if buggy_sha:
+                    checkout_commit(repo_path, buggy_sha)
+                
+                if apply_patch(repo_path, patch_content):
+                    fixed_checkout_success = True
+                else:
+                    print("Error: Failed to apply patch.")
+            else:
+                 print("Error: No patch content available and checkout failed.")
+
+        if not fixed_checkout_success:
+            print("CRITICAL WARNING: Could not establish Fixed Version state.")
+            print("  Test will run on current state (which might be wrong).")
         
-        if use_patch and patch_content:
-            # Apply patch
-            if not apply_patch(repo_path, patch_content):
-                print("Warning: Cannot apply patch, trying to checkout head SHA")
-                force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
-                head_sha = get_head_sha(pr_info)
-                if head_sha:
-                    checkout_commit(repo_path, head_sha)
-        else:
-            head_sha = get_head_sha(pr_info)
-            if head_sha:
-                if not checkout_commit(repo_path, head_sha):
-                    print("Warning: Cannot checkout head SHA")
+        # if use_patch and patch_content:
+        #     # Apply patch
+        #     if not apply_patch(repo_path, patch_content):
+        #         print("Warning: Cannot apply patch, trying to checkout head SHA")
+        #         force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
+        #         head_sha = get_head_sha(pr_info)
+        #         if head_sha:
+        #             checkout_commit(repo_path, head_sha)
+        #         else:
+        #             print("WARNING: Did not check out FIXED.")
+        # else:
+        #     head_sha = get_head_sha(pr_info)
+        #     if head_sha:
+        #         if not checkout_commit(repo_path, head_sha):
+        #             print("Warning: Cannot checkout head SHA")
         
         success_after, output_after = run_test_in_docker(
             repo_path, dockerfile_path, test_file, "Fixed Version"

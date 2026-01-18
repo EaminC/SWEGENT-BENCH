@@ -1030,6 +1030,7 @@ def main():
     full_loop_active = False
     max_full_loop = 3  # Maximum full loop iterations
     full_loop_iteration = 0
+    test_output = ""
     
     # Outer loop: Full loop (Dockerfile + Test) if enabled and Dockerfile issue detected
     while True:
