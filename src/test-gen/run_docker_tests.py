@@ -47,14 +47,28 @@ def force_clean_repo(repo_path: Path, protected_paths: list[Path] = None):
         
         # 1. Backup Protected Files to Memory
         saved_files = {}
-        if protected_paths:
-            for p in protected_paths:
+        # Always protect test/test*.py and ./test*.py scripts
+        import glob
+        test_patterns = [
+            str(repo_path / "tests" / "test*.py"),
+            str(repo_path / "test*.py")
+        ]
+        extra_test_files = set()
+        for pat in test_patterns:
+            for f in glob.glob(pat):
+                p = Path(f)
                 if p.exists() and p.is_file():
-                    try:
-                        saved_files[p] = p.read_bytes()
-                        print(f"   ✓ Backed up: {p.name}")
-                    except Exception as e:
-                        print(f"   ⚠ Warning: Could not backup {p.name}: {e}")
+                    extra_test_files.add(p)
+        # Merge with user-supplied protected_paths
+        all_protected = set(protected_paths) if protected_paths else set()
+        all_protected.update(extra_test_files)
+        for p in all_protected:
+            if p.exists() and p.is_file():
+                try:
+                    saved_files[p] = p.read_bytes()
+                    print(f"   ✓ Backed up: {p.name}")
+                except Exception as e:
+                    print(f"   ⚠ Warning: Could not backup {p.name}: {e}")
 
         # 2. Reset tracked files (Revert modifications to known files)
         subprocess.run(
@@ -75,12 +89,12 @@ def force_clean_repo(repo_path: Path, protected_paths: list[Path] = None):
         # 4. Restore Protected Files
         for p, content in saved_files.items():
             try:
-                # Ensure parent directory exists (in case git clean deleted 'tests/')
+                # Ensure parent directory exists (in case git clean deleted 'tests/' or root)
                 p.parent.mkdir(parents=True, exist_ok=True)
                 p.write_bytes(content)
-                print(f"   ✓ Restored: {p.name}")
+                print(f"   ✓ Restored: {p}")
             except Exception as e:
-                print(f"   ✗ Error restoring {p.name}: {e}")
+                print(f"   ✗ Error restoring {p}: {e}")
                 
         print(f"   ✓ Repository cleaned.")
         return True
@@ -775,7 +789,30 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
             print("Please ensure test file has been generated")
             return False
         
+
         print(f"Found test file: {test_file}")
+
+        # Helper: Ensure test file exists in both root and tests/ folder
+        def ensure_test_file_in_both_locations(test_file: Path, repo_path: Path):
+            tests_dir = repo_path / 'tests'
+            root_test = repo_path / test_file.name
+            tests_test = tests_dir / test_file.name
+            # Copy to root if not present
+            if not root_test.exists():
+                try:
+                    root_test.write_bytes(test_file.read_bytes())
+                    print(f"   ✓ Copied test to repo root: {root_test}")
+                except Exception as e:
+                    print(f"   ✗ Error copying test to root: {e}")
+            # Copy to tests/ if not present
+            if not tests_test.exists():
+                try:
+                    tests_dir.mkdir(parents=True, exist_ok=True)
+                    tests_test.write_bytes(test_file.read_bytes())
+                    print(f"   ✓ Copied test to tests/: {tests_test}")
+                except Exception as e:
+                    print(f"   ✗ Error copying test to tests/: {e}")
+
 
         # ==============================================================================
         # SHA RESOLUTION PHASE
@@ -804,6 +841,9 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
                 pass
         
         # Test 1: Run on buggy version (before applying patch)
+
+        # After checkout, always ensure test file is present in both locations
+        ensure_test_file_in_both_locations(test_file, repo_path)
         print(f"\n{'='*80}")
         print("Test 1: Buggy Version (before applying patch)")
         print(f"{'='*80}")
@@ -833,6 +873,9 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         success_before, output_before = run_test_in_docker(
             repo_path, dockerfile_path, test_file, "Buggy Version"
         )
+
+        # After running buggy version, ensure test file is present in both locations again (in case of checkout)
+        ensure_test_file_in_both_locations(test_file, repo_path)
         
         print(f"\nBuggy version test result: {'PASS' if not success_before else 'FAIL'}")
         print("Output:")
