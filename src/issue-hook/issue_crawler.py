@@ -29,10 +29,11 @@ class GitHubIssueCrawler:
     def __init__(self, repo: str, github_token: Optional[str] = None, use_local_clone: bool = False,
                  max_workers: int = 5,
                  min_added: Optional[int] = None, max_added: Optional[int] = None,
-                 min_deleted: Optional[int] = None, max_deleted: Optional[int] = None):
+                 min_deleted: Optional[int] = None, max_deleted: Optional[int] = None,
+                 min_total_lines: Optional[int] = None, max_total_lines: Optional[int] = None):
         """
         Initialize crawler
-        
+
         Args:
             repo: GitHub repository in format "owner/repo"
             github_token: GitHub API token (optional but recommended to avoid rate limits)
@@ -42,6 +43,8 @@ class GitHubIssueCrawler:
             max_added: Maximum added lines in PR patch (inclusive); None = no filter
             min_deleted: Minimum deleted lines in PR patch (inclusive); None = no filter
             max_deleted: Maximum deleted lines in PR patch (inclusive); None = no filter
+            min_total_lines: Minimum (added+deleted) lines in PR patch (inclusive); None = no filter
+            max_total_lines: Maximum (added+deleted) lines in PR patch (inclusive); None = no filter
         """
         self.repo = repo
         self.github_token = github_token or os.getenv("GITHUB_TOKEN")
@@ -764,7 +767,47 @@ Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
         
         print(f"\nFiltering complete! Found {len(filtered_issues)} issues meeting criteria")
         return filtered_issues
-    
+
+    def _deduplicate_issues_by_pr(self, filtered_issues: List[Dict]) -> List[Dict]:
+        """
+        Deduplicate issues by linked PR: when multiple issues link to the same PR,
+        keep only one issue per PR (the one with the smallest issue number) so that
+        each fix (PR) corresponds to at most one issue in the final dataset.
+
+        Args:
+            filtered_issues: List of filtered issues (each has 'linked_prs').
+
+        Returns:
+            Deduplicated list (one issue per unique first-linked PR).
+        """
+        if not filtered_issues:
+            return []
+
+        # Group by first linked PR number
+        by_pr: Dict[int, List[Dict]] = {}
+        for issue in filtered_issues:
+            prs = issue.get('linked_prs') or []
+            if not prs:
+                continue
+            pr_num = prs[0]['number']
+            by_pr.setdefault(pr_num, []).append(issue)
+
+        # For each PR, keep the issue with the smallest issue number
+        deduplicated = []
+        for pr_num, group in sorted(by_pr.items()):
+            chosen = min(group, key=lambda x: x['number'])
+            deduplicated.append(chosen)
+            if len(group) > 1:
+                with self.print_lock:
+                    others = sorted(i['number'] for i in group if i['number'] != chosen['number'])
+                    print(f"  [Dedup] PR #{pr_num}: kept issue #{chosen['number']}, dropped issues {others} (same PR)")
+
+        deduplicated.sort(key=lambda x: x['number'])
+        dropped = len(filtered_issues) - len(deduplicated)
+        if dropped > 0:
+            print(f"\nDeduplication: {len(filtered_issues)} -> {len(deduplicated)} issues ({dropped} dropped, same PR)")
+        return deduplicated
+
     def batch_ai_judgment(self, issues: List[Dict]) -> List[Dict]:
         """
         Batch AI judgment for all filtered issues
@@ -876,6 +919,13 @@ Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
             if not filtered_issues:
                 print("No issues meeting criteria found")
                 # Save empty result
+                output_file = self.save_results([])
+                return output_file
+
+            # 2b. Deduplicate by PR: at most one issue per linked PR
+            filtered_issues = self._deduplicate_issues_by_pr(filtered_issues)
+            if not filtered_issues:
+                print("No issues left after PR deduplication")
                 output_file = self.save_results([])
                 return output_file
             
