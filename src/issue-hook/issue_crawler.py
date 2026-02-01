@@ -26,7 +26,10 @@ from forge.api import LLMClient
 class GitHubIssueCrawler:
     """GitHub Issue Crawler Class"""
     
-    def __init__(self, repo: str, github_token: Optional[str] = None, use_local_clone: bool = False, max_workers: int = 5):
+    def __init__(self, repo: str, github_token: Optional[str] = None, use_local_clone: bool = False,
+                 max_workers: int = 5,
+                 min_added: Optional[int] = None, max_added: Optional[int] = None,
+                 min_deleted: Optional[int] = None, max_deleted: Optional[int] = None):
         """
         Initialize crawler
         
@@ -35,6 +38,10 @@ class GitHubIssueCrawler:
             github_token: GitHub API token (optional but recommended to avoid rate limits)
             use_local_clone: Whether to use local clone mode (more accurate but requires disk space)
             max_workers: Maximum number of concurrent workers for issue filtering (default: 5)
+            min_added: Minimum added lines in PR patch (inclusive); None = no filter
+            max_added: Maximum added lines in PR patch (inclusive); None = no filter
+            min_deleted: Minimum deleted lines in PR patch (inclusive); None = no filter
+            max_deleted: Maximum deleted lines in PR patch (inclusive); None = no filter
         """
         self.repo = repo
         self.github_token = github_token or os.getenv("GITHUB_TOKEN")
@@ -44,6 +51,14 @@ class GitHubIssueCrawler:
         }
         if self.github_token:
             self.headers["Authorization"] = f"token {self.github_token}"
+        
+        # Patch line bounds (None = no filter)
+        self.min_added = min_added
+        self.max_added = max_added
+        self.min_deleted = min_deleted
+        self.max_deleted = max_deleted
+        self.min_total_lines = min_total_lines
+        self.max_total_lines = max_total_lines
         
         # Initialize LLM client
         self.llm_client = LLMClient()
@@ -64,6 +79,135 @@ class GitHubIssueCrawler:
         # Concurrent processing
         self.max_workers = max_workers
         self.print_lock = Lock()
+    
+    def _count_patch_lines(self, patch_text: str) -> Tuple[int, int]:
+        """
+        Count added and deleted lines in a unified diff patch.
+        Returns (added_lines, deleted_lines). Excludes +++/--- header lines.
+        """
+        added = 0
+        deleted = 0
+        for line in patch_text.splitlines():
+            if line.startswith('+') and not line.startswith('+++'):
+                added += 1
+            elif line.startswith('-') and not line.startswith('---'):
+                deleted += 1
+        return (added, deleted)
+    
+    def _get_patch_file_paths(self, patch_text: str) -> List[str]:
+        """Extract changed file paths from unified diff (e.g. 'diff --git a/path b/path')."""
+        seen = set()
+        for line in patch_text.splitlines():
+            if line.startswith('diff --git '):
+                parts = line.split()
+                if len(parts) >= 4:
+                    p = parts[2]
+                    if p.startswith('a/'):
+                        seen.add(p[2:])
+            elif line.startswith('--- ') or line.startswith('+++ '):
+                s = line.split(None, 1)
+                if len(s) >= 2:
+                    p = s[1].strip().split('\t')[0]
+                    if p.startswith('a/'):
+                        seen.add(p[2:])
+                    elif p.startswith('b/'):
+                        seen.add(p[2:])
+        return [p for p in seen if p and p != '/dev/null']
+    
+    def _patch_must_kick(self, pr: Dict) -> bool:
+        """
+        Must-kick filter: exclude PRs that are not meaningful for agent-issue evaluation.
+        Returns True if the patch should be excluded (kick).
+        """
+        patch = pr.get('patch')
+        if not patch or not patch.strip():
+            return False  # No patch to analyze; let other filters handle
+        
+        paths = self._get_patch_file_paths(patch)
+        if not paths:
+            return False
+        
+        def norm(p: str) -> str:
+            p = p.replace('\\', '/').lower()
+            return p
+        
+        # Only docs: docs/, README, *.md, *.rst
+        doc_patterns = ('docs/', 'readme', '.md', '.rst')
+        if all(
+            norm(p).startswith('docs/') or 'readme' in norm(p).split('/')[-1] or
+            norm(p).endswith('.md') or norm(p).endswith('.rst')
+            for p in paths
+        ):
+            return True
+        
+        # Only config/lock and generated: package-lock.json, yarn.lock, poetry.lock, Pipfile.lock, Cargo.lock, go.sum, *.pb.go, dist/, build/
+        config_names = {
+            'package-lock.json', 'yarn.lock', 'poetry.lock', 'pipfile.lock',
+            'cargo.lock', 'go.sum'
+        }
+        if all(
+            norm(p).split('/')[-1] in config_names or
+            norm(p).endswith('.pb.go') or norm(p).startswith('dist/') or norm(p).startswith('build/')
+            for p in paths
+        ):
+            return True
+        
+        # Only vendor/third_party: vendor/, third_party/, node_modules/
+        vendor_patterns = ('vendor/', 'third_party/', 'node_modules/')
+        if all(any(norm(p).startswith(s) for s in vendor_patterns) for p in paths):
+            return True
+        
+        # Binary / generated assets: images, models, zip, pdf, audio
+        binary_ext = (
+            '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.svg',
+            '.zip', '.tar', '.gz', '.pdf', '.mp3', '.wav', '.ogg', '.mp4',
+            '.bin', '.pb.go', '.model', '.onnx', '.pt', '.pth', '.h5', '.pickle'
+        )
+        if all(any(norm(p).endswith(ext) for ext in binary_ext) for p in paths):
+            return True
+        
+        # Only formatting: high ratio of lines that are purely whitespace change
+        added, deleted = self._count_patch_lines(patch)
+        total_add_del = added + deleted
+        if total_add_del >= 20:
+            content_count = 0
+            for line in patch.splitlines():
+                if (line.startswith('+') and not line.startswith('+++')) or (line.startswith('-') and not line.startswith('---')):
+                    rest = line[1:].strip()
+                    if rest:
+                        content_count += 1
+            if total_add_del > 0 and content_count / total_add_del < 0.05:
+                return True
+        
+        return False
+    
+    def _patch_in_bounds(self, pr: Dict) -> bool:
+        """Check if PR patch (if present) is within configured line bounds. If no min/max is set, no limit (always True)."""
+        patch = pr.get('patch')
+        if not patch:
+            # No patch: exclude only when any bound is set
+            if (self.min_added is not None or self.max_added is not None or
+                self.min_deleted is not None or self.max_deleted is not None or
+                self.min_total_lines is not None or self.max_total_lines is not None):
+                return False
+            return True
+        
+        added, deleted = self._count_patch_lines(patch)
+        total = added + deleted
+        
+        if self.min_added is not None and added < self.min_added:
+            return False
+        if self.max_added is not None and added > self.max_added:
+            return False
+        if self.min_deleted is not None and deleted < self.min_deleted:
+            return False
+        if self.max_deleted is not None and deleted > self.max_deleted:
+            return False
+        if self.min_total_lines is not None and total < self.min_total_lines:
+            return False
+        if self.max_total_lines is not None and total > self.max_total_lines:
+            return False
+        return True
     
     def _load_agent_criteria(self) -> str:
         """Load agent issue criteria"""
@@ -360,29 +504,50 @@ class GitHubIssueCrawler:
         except Exception:
             return []
     
+    def _get_pr_patch(self, pr_number: int) -> Optional[str]:
+        """
+        Fetch full PR diff/patch. If fetch fails, return None (do not fail the crawl).
+        """
+        try:
+            diff_url = f"{self.base_url}/repos/{self.repo}/pulls/{pr_number}.diff"
+            diff_headers = {"Accept": "application/vnd.github.v3.diff"}
+            if self.github_token:
+                diff_headers["Authorization"] = f"token {self.github_token}"
+            diff_response = requests.get(diff_url, headers=diff_headers, timeout=30)
+            diff_response.raise_for_status()
+            patch_text = diff_response.text
+            if not patch_text or not patch_text.strip():
+                return None
+            return patch_text
+        except Exception:
+            return None
+
     def _get_pr_info(self, pr_number: int) -> Optional[Dict]:
         """
-        Get detailed PR information
-        
-        Args:
-            pr_number: PR number
-            
-        Returns:
-            PR information dictionary
+        Get detailed PR information including base_sha (commit before PR), head_sha, and full patch.
+        If patch fetch fails, PR info is still returned without patch.
         """
         try:
             url = f"{self.base_url}/repos/{self.repo}/pulls/{pr_number}"
             response = requests.get(url, headers=self.headers)
             response.raise_for_status()
             pr = response.json()
-            return {
+            base_sha = pr.get('base', {}).get('sha', '')
+            head_sha = pr.get('head', {}).get('sha', '')
+            pr_info = {
                 'number': pr['number'],
                 'state': pr['state'],
                 'title': pr['title'],
                 'url': pr['html_url'],
                 'merged': pr.get('merged', False),
-                'base_branch': pr.get('base', {}).get('ref', '')
+                'base_branch': pr.get('base', {}).get('ref', ''),
+                'base_sha': base_sha,
+                'head_sha': head_sha,
             }
+            patch = self._get_pr_patch(pr_number)
+            if patch is not None:
+                pr_info['patch'] = patch
+            return pr_info
         except Exception:
             return None
     
@@ -509,6 +674,26 @@ Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
         
         with self.print_lock:
             print(f"  ✓ {len(merged_prs)} PR(s) merged to main")
+        
+        # Condition 5 (must-kick): Exclude PRs that are docs-only, config-only, vendor-only, binary, or formatting-only
+        merged_prs = [pr for pr in merged_prs if not self._patch_must_kick(pr)]
+        if not merged_prs:
+            with self.print_lock:
+                print(f"  ✗ No PRs after must-kick filter (docs/config/vendor/binary/formatting-only)")
+            return None
+        with self.print_lock:
+            print(f"  ✓ {len(merged_prs)} PR(s) passed must-kick filter")
+        
+        # Condition 6 (optional): Filter by patch line bounds (added, deleted, total)
+        if (self.min_added is not None or self.max_added is not None or self.min_deleted is not None or self.max_deleted is not None or
+            self.min_total_lines is not None or self.max_total_lines is not None):
+            merged_prs = [pr for pr in merged_prs if self._patch_in_bounds(pr)]
+            if not merged_prs:
+                with self.print_lock:
+                    print(f"  ✗ No PRs within patch line bounds (min/max added, min/max deleted)")
+                return None
+            with self.print_lock:
+                print(f"  ✓ {len(merged_prs)} PR(s) within patch line bounds")
         
         # Create filtered issue (without AI judgment yet)
         filtered_issue = {
@@ -728,23 +913,44 @@ Examples:
   
   # More concurrent workers for faster processing (be mindful of rate limits)
   python issue_crawler.py TsinghuaDatabaseGroup/DB-GPT --local-clone --workers 20
+  
+  # Filter by patch line counts (added/deleted lines in PR diff)
+  python issue_crawler.py owner/repo --min-added 1 --max-added 500 --min-deleted 1 --max-deleted 500
         """
     )
     parser.add_argument('repo', type=str, help='GitHub repository (format: owner/repo)')
     parser.add_argument('--token', type=str, help='GitHub API token (or set GITHUB_TOKEN env var)')
-    parser.add_argument('--local-clone', action='store_true', 
+    parser.add_argument('--local-clone', action='store_true',
                        help='Use local clone mode: clone repo locally for analysis (more accurate but requires time and disk space)')
     parser.add_argument('--workers', type=int, default=10,
                        help='Maximum number of concurrent workers for issue filtering (default: 10, recommended: 5-20)')
+    parser.add_argument('--min-added', type=int, default=None,
+                       help='Minimum added lines in PR patch (inclusive); PRs without patch or below this are excluded')
+    parser.add_argument('--max-added', type=int, default=None,
+                       help='Maximum added lines in PR patch (inclusive)')
+    parser.add_argument('--min-deleted', type=int, default=None,
+                       help='Minimum deleted lines in PR patch (inclusive)')
+    parser.add_argument('--max-deleted', type=int, default=None,
+                       help='Maximum deleted lines in PR patch (inclusive)')
+    parser.add_argument('--min-total-lines', type=int, default=None,
+                       help='Minimum (added + deleted) lines in PR patch (inclusive); default no limit')
+    parser.add_argument('--max-total-lines', type=int, default=None,
+                       help='Maximum (added + deleted) lines in PR patch (inclusive); default no limit')
     
     args = parser.parse_args()
     
     # Create crawler instance and run
     crawler = GitHubIssueCrawler(
-        args.repo, 
-        args.token, 
+        args.repo,
+        args.token,
         use_local_clone=args.local_clone,
-        max_workers=args.workers
+        max_workers=args.workers,
+        min_added=args.min_added,
+        max_added=args.max_added,
+        min_deleted=args.min_deleted,
+        max_deleted=args.max_deleted,
+        min_total_lines=args.min_total_lines,
+        max_total_lines=args.max_total_lines,
     )
     
     if args.local_clone:

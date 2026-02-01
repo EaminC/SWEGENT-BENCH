@@ -1,36 +1,51 @@
 import openai
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 from typing import List, Dict, Optional
 
-# .env is in ../../.env
-load_dotenv()
+# Load .env: cwd first, then project root with override so project root wins
+_project_root = Path(__file__).resolve().parent.parent.parent
+_env_path = _project_root / ".env"
+_cwd_env = Path.cwd() / ".env"
+if _cwd_env.exists():
+    load_dotenv(_cwd_env)
+if _env_path.exists():
+    load_dotenv(_env_path, override=True)  # project root overrides shell and cwd
 
-FORGE_API_KEY = os.getenv("FORGE_API_KEY")
+
+def _getenv_stripped(key: str, default: str = "") -> str:
+    v = os.getenv(key, default)
+    if v is None:
+        return default
+    return str(v).strip().strip('"').strip("'")
 
 
 class LLMClient:
     """Unified LLM calling interface"""
     
-    def __init__(self, model: str = "OpenAI/gpt-4o"):
+    def __init__(self, model: Optional[str] = None):
         """
-        Initialize LLM client
+        Initialize LLM client.
+        Model and base URL are read from .env (MODEL, FORGE_BASE_URL) when not passed.
+        """
+        # Read at runtime so .env is always applied (and override=True above ensures .env wins)
+        model_val = model or _getenv_stripped("MODEL", "OpenAI/gpt-4o")
+        self.model = model_val or "OpenAI/gpt-4o"
         
-        Args:
-            model: Model name to use, default is OpenAI/gpt-4o
-        """
-        self.model = model
+        api_key = _getenv_stripped("FORGE_API_KEY")
+        base_url = _getenv_stripped("FORGE_BASE_URL", "https://api.forge.tensorblock.co/v1") or "https://api.forge.tensorblock.co/v1"
         
         # Configure OpenAI for old version compatibility
-        openai.api_key = FORGE_API_KEY
-        openai.api_base = "https://api.forge.tensorblock.co/v1"
+        openai.api_key = api_key
+        openai.api_base = base_url
         
         # Try to use new version if available
         try:
             from openai import OpenAI
             self.client = OpenAI(
-                base_url="https://api.forge.tensorblock.co/v1", 
-                api_key=FORGE_API_KEY,  
+                base_url=base_url,
+                api_key=api_key,
             )
             self.use_new_api = True
         except (ImportError, TypeError):
@@ -77,21 +92,26 @@ class LLMClient:
             print(f"LLM call error: {e}")
             return ""
     
-    def simple_chat(self, 
-                    user_message: str, 
+    def simple_chat(self,
+                    user_message: str,
                     system_prompt: Optional[str] = None,
-                    temperature: float = 0.7) -> str:
+                    temperature: Optional[float] = None) -> str:
         """
         Simplified chat interface
         
         Args:
             user_message: User message
             system_prompt: System prompt, default None
-            temperature: Generation temperature, default 0.7
+            temperature: Generation temperature; default from .env AI_TEMPERATURE or 0.7
             
         Returns:
             LLM response content
         """
+        if temperature is None:
+            try:
+                temperature = float((os.getenv("AI_TEMPERATURE") or "0.7").strip().strip('"').strip("'"))
+            except (TypeError, ValueError):
+                temperature = 0.7
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})

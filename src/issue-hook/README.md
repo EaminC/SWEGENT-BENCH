@@ -24,14 +24,17 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Create a `.env` file in the project root directory with the following environment variables:
+Create a `.env` file in the **project root** (SWEGENT-BENCH/.env). The Forge/LLM client (used for AI judgment) loads it from there:
 
 ```bash
 # GitHub API Token (optional but strongly recommended to avoid rate limits)
 GITHUB_TOKEN=your_github_token_here
 
-# Forge API Key (required for AI judgment)
+# Forge API (required for AI judgment)
 FORGE_API_KEY=your_forge_api_key_here
+FORGE_BASE_URL=https://api.forge.tensorblock.co/v1
+MODEL=tensorblock/gpt-4.1-mini
+AI_TEMPERATURE=0.7
 ```
 
 ### How to Get GitHub Token
@@ -106,6 +109,36 @@ python issue_crawler.py TsinghuaDatabaseGroup/DB-GPT --local-clone --workers 20
 
 **Note**: Concurrent processing is only enabled in local clone mode. API mode uses sequential processing to avoid rate limits.
 
+### Must-kick patch filter (always on)
+
+PRs whose patch falls into the following categories are **always excluded** (strongly recommended for agent-issue relevance):
+
+- **Docs only**: all changed files under `docs/`, or README, `*.md`, `*.rst`
+- **Config/lock only**: `package-lock.json`, `yarn.lock`, `poetry.lock`, `Pipfile.lock`, `Cargo.lock`, `go.sum`, `*.pb.go`, `dist/`, `build/`
+- **Vendor/third_party only**: `vendor/`, `third_party/`, `node_modules/`
+- **Binary / generated assets**: images (`.png`, `.jpg`, …), archives (`.zip`, …), `.pdf`, audio, `.pb.go`, model files, etc.
+- **Formatting only**: patch has many changed lines but &lt;5% are non-whitespace (e.g. “run formatter”)
+
+### Patch line bounds (optional)
+
+Filter issues by PR patch size (added/deleted/total lines). **Not set = no limit.**
+
+```bash
+# Only keep PRs with 1–500 added lines and 1–500 deleted lines
+python issue_crawler.py owner/repo --min-added 1 --max-added 500 --min-deleted 1 --max-deleted 500
+
+# Total (added + deleted) between 10 and 1000 lines
+python issue_crawler.py owner/repo --min-total-lines 10 --max-total-lines 1000
+
+# Only minimum (e.g. at least 5 lines changed)
+python issue_crawler.py owner/repo --min-added 5 --min-deleted 5
+```
+
+- `--min-added`, `--max-added`: min/max **added** lines in PR patch (inclusive).
+- `--min-deleted`, `--max-deleted`: min/max **deleted** lines in PR patch (inclusive).
+- `--min-total-lines`, `--max-total-lines`: min/max **(added + deleted)** lines; default no limit.
+- If any of these is set, PRs without a fetched patch are excluded.
+
 ### Mode Comparison
 
 | Feature | API Mode | Local Clone Mode |
@@ -143,7 +176,10 @@ JSON file structure:
           "number": 124,
           "state": "closed",
           "title": "Fix issue #123",
-          "url": "https://github.com/owner/repo/pull/124"
+          "url": "https://github.com/owner/repo/pull/124",
+          "base_sha": "commit SHA before this PR (for buggy version)",
+          "head_sha": "commit SHA of this PR tip (for fixed version)",
+          "patch": "full PR diff (optional; omitted if fetch failed)"
         }
       ],
       "ai_judgment": {
