@@ -88,8 +88,8 @@ YOUR TASK:
 When creating/configuring the Dockerfile, you need to:
 1. Choose the appropriate base image (see BASE IMAGE SELECTION above)
 2. Set the appropriate environment variables to make the repository use Forge API instead of OpenAI API
-3. Install and configure unittest testing framework environment
-4. Ensure the system can run Python unittest tests
+3. Install any dependencies required for the standalone reproduction script (standard pip requirements)
+4. Ensure the system can run the standalone Python script directly (e.g., via 'python test_script.py')
 
 ENVIRONMENT VARIABLES TO SET IN DOCKERFILE:
 The Forge API is OpenAI-compatible, so the application can work with it by setting these 
@@ -105,60 +105,60 @@ For Anthropic SDK compatibility:
 
 Additional configuration variables are available in the "ENVIRONMENT VARIABLES REFERENCE" section.
 
-UNITTEST ENVIRONMENT CONFIGURATION:
-The Dockerfile MUST install and configure Python unittest framework:
-- Install Python unittest module (usually included with Python, but ensure it's available)
-- Install any required testing dependencies (e.g., unittest.mock, unittest.TestCase)
-- Ensure Python can import unittest module: `python -c "import unittest"`
-- If the repository has test requirements, install them (e.g., requirements-test.txt, test-requirements.txt)
-- Make sure the environment is ready to run: `python -m unittest discover` or `python -m pytest` if pytest is used
+STANDALONE SCRIPT ENVIRONMENT CONFIGURATION:
+The Dockerfile MUST configure the environment to run standalone Python scripts:
+- Ensure Python 3 is installed and available as `python` or `python3`
+- Install standard system dependencies needed for Python execution
+- If the repository has requirements (requirements.txt, etc.), install them so the script can import project modules
+- The script will be run directly (e.g., `python test128.py`), NOT via a test runner (pytest/unittest)
+- Ensure the environment allows standard import of 'sys', 'os', 'json', and 'requests' (if needed)
 
 CRITICAL DOCKERFILE BEST PRACTICES:
 
 1. FILE EXISTENCE CHECKS:
-   - ALWAYS check if files exist before COPY: `RUN if [ -f "file.txt" ]; then cp file.txt /app/; fi`
-   - ALWAYS check if directories exist before COPY: `RUN if [ -d "tests" ]; then cp -r tests/ /app/tests/; fi`
-   - NEVER assume files exist - use conditional commands
+    - ALWAYS check if files exist before COPY: `RUN if [ -f "file.txt" ]; then cp file.txt /app/; fi`
+    - ALWAYS check if directories exist before COPY: `RUN if [ -d "tests" ]; then cp -r tests/ /app/tests/; fi`
+    - NEVER assume files exist - use conditional commands
 
 2. PNPM GLOBAL CONFIGURATION:
-   - If using `pnpm link --global`, set: `ENV PNPM_HOME=/root/.local/share/pnpm`
-   - Add to PATH: `ENV PATH="$PNPM_HOME:$PATH"`
-   - Or avoid --global flag if not needed
+    - If using `pnpm link --global`, set: `ENV PNPM_HOME=/root/.local/share/pnpm`
+    - Add to PATH: `ENV PATH="$PNPM_HOME:$PATH"`
+    - Or avoid --global flag if not needed
 
 3. PYTHON PACKAGE INSTALLATION (PEP 668):
-   - For Python 3.11+, use virtual environment: `RUN python3 -m venv /venv && /venv/bin/pip install ...`
-   - Or use: `RUN pip install --break-system-packages ...`
-   - Or use: `RUN pip install --user ...`
+    - For Python 3.11+, use virtual environment: `RUN python3 -m venv /venv && /venv/bin/pip install ...`
+    - Or use: `RUN pip install --break-system-packages ...`
+    - Or use: `RUN pip install --user ...`
 
 4. COMPILATION DEPENDENCIES:
-   - For packages like lxml, install system libraries first:
-     `RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev python3-dev gcc`
-   - Then install Python packages: `RUN pip install lxml`
+    - For packages like lxml, install system libraries first:
+      `RUN apt-get update && apt-get install -y libxml2-dev libxslt1-dev python3-dev gcc`
+    - Then install Python packages: `RUN pip install lxml`
 
 5. POETRY INSTALLATION:
-   - Install via pipx: `RUN pipx install poetry`
-   - Add to PATH: `ENV PATH="/root/.local/bin:$PATH"`
-   - Or use pip: `RUN pip install poetry`
+    - Install via pipx: `RUN pipx install poetry`
+    - Add to PATH: `ENV PATH="/root/.local/bin:$PATH"`
+    - Or use pip: `RUN pip install poetry`
 
 6. RUST PROJECTS:
-   - If Cargo.toml exists, this is a Rust project
-   - Use `cargo build` NOT `pip install`
-   - Install Rust toolchain if needed: `RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y`
+    - If Cargo.toml exists, this is a Rust project
+    - Use `cargo build` NOT `pip install`
+    - Install Rust toolchain if needed: `RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y`
 
 7. PATH HANDLING:
-   - Always use forward slashes in paths: `/workspace/tests/test.py`
-   - Never use Windows-style backslashes: `\\workspace\\tests\\test.py`
-   - Normalize paths in RUN commands
+    - Always use forward slashes in paths: `/workspace/tests/test.py`
+    - Never use Windows-style backslashes: `\\workspace\\tests\\test.py`
+    - Normalize paths in RUN commands
 
 8. NETWORK ERRORS:
-   - Add retry logic for network operations
-   - Use mirrors for package managers if needed
-   - Consider using --network=host for Docker builds if network issues persist
+    - Add retry logic for network operations
+    - Use mirrors for package managers if needed
+    - Consider using --network=host for Docker builds if network issues persist
 
 APPROACH:
 1. Set environment variables in the Dockerfile using ENV directives
-2. Install Python and unittest dependencies using RUN commands
-3. Install any test-related packages needed by the repository
+2. Install Python and any project dependencies required by the reproduction script using RUN commands
+3. Install any system packages needed by the repository
 4. These environment variables will override the default API endpoints
 5. The existing code will automatically use Forge API through these environment variables
 6. No code changes needed - only Dockerfile configuration
@@ -239,7 +239,7 @@ APPROACH:
     prompt_parts.append("")
     prompt_parts.append("REMINDER: Only configure environment variables and install dependencies in Dockerfile. Do NOT modify any source code.")
     prompt_parts.append("")
-    prompt_parts.append("UNITTEST REQUIREMENT: The Dockerfile must ensure unittest framework is available and ready to use.")
+    prompt_parts.append("STANDALONE SCRIPT REQUIREMENT: The Dockerfile must ensure the environment supports running standalone Python scripts directly.")
     
     return "\n".join(prompt_parts)
 

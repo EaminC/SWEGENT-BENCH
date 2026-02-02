@@ -75,7 +75,7 @@ def get_repo_code_summary(repo_path: Path, max_files: int = 50) -> str:
 
 def build_prompt(repo_path: Path, issue_json_path: Path, repo_build_dir: Path):
     """
-    Build prompt for generating test cases
+    Build prompt for generating standalone reproduction scripts
     
     Args:
         repo_path: Repository path
@@ -100,26 +100,27 @@ def build_prompt(repo_path: Path, issue_json_path: Path, repo_build_dir: Path):
     
     # Build prompt
     prompt_parts.append("=" * 80)
-    prompt_parts.append("TASK: GENERATE TEST CASE FOR AGENT ISSUE")
+    prompt_parts.append("TASK: GENERATE STANDALONE REPRODUCTION SCRIPT")
     prompt_parts.append("=" * 80)
     prompt_parts.append("""
-You are tasked with creating a unit test case for an agent-related issue in a repository.
+You are tasked with creating a standalone Python reproduction script for an agent-related issue.
 
 CRITICAL REQUIREMENTS:
-1. Write a test case using Python's unittest framework
-2. The test should verify the bug described in the issue
-3. Mock any remote API calls (LLM providers, external services) - DO NOT make real API calls
-4. The test should FAIL on the buggy version (before patch) and PASS on the fixed version (after patch)
-5. Use the mock interface guidelines provided below
+1. Write a standalone script based on the issue description and the provided patch
+2. The script must NOT use the 'unittest' framework (no unittest.TestCase)
+3. Use standard 'assert' statements to verify the bug described
+4. Mock any remote API calls (LLM providers, external services) - DO NOT make real API calls
+5. The script should raise an AssertionError (or exit with non-zero code) on the buggy version
+6. The script should run successfully (exit with code 0) on the fixed version (after patch)
 
-TEST STRUCTURE:
-- Use unittest.TestCase as base class
-- Use unittest.mock or similar mocking libraries
-- Mock LLM API calls, external HTTP requests, etc.
-- Test should be deterministic and not depend on external services
+SCRIPT STRUCTURE:
+- Use standard Python functions or top-level code
+- Use 'unittest.mock' (or similar) strictly for mocking functionality, NOT for test runners
+- Include a 'if __name__ == "__main__":' block
+- Do NOT define a class inheriting from unittest.TestCase
 
 OUTPUT FORMAT:
-You MUST save the test case as a Python file. Prefer saving in tests/ directory if it exists,
+You MUST save the script as a Python file. Prefer saving in tests/ directory if it exists,
 otherwise save in repository root directory.
 The filename MUST be exactly: test{issue_number}.py
 For example, if issue number is 128, the file must be named: test128.py
@@ -146,7 +147,7 @@ Description:
 
 Labels: {', '.join(issue_data.get('labels', []))}
 
-IMPORTANT: You must create a test file named: test{issue_data.get('number')}.py
+IMPORTANT: You must create a reproduction script named: test{issue_data.get('number')}.py
 """)
     
     # Add PR and patch information
@@ -199,24 +200,24 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
     prompt_parts.append("""
 1. Analyze the issue description and the patch to understand what bug was fixed
 2. Examine the repository structure to understand the codebase
-3. Write a test case that:
-   - Reproduces the bug condition (test should FAIL with buggy code)
-   - Verifies the fix works (test should PASS with fixed code)
+3. Write a standalone reproduction script that:
+   - Reproduces the bug condition (script should FAIL/Raise Error with buggy code)
+   - Verifies the fix works (script should PASS/Exit 0 with fixed code)
    - Uses mocks for all external API calls
    - Is self-contained and can run independently
 
-4. Save the test file with the exact filename: test{issue_number}.py
-   - If tests/ directory exists, save there: tests/test{issue_number}.py and also save the test{issue_number}.py in repository root: test{issue_number}.py
+4. Save the script with the exact filename: test{issue_number}.py
+   - If tests/ directory exists, save there: tests/test{issue_number}.py
    - Otherwise, save in repository root: test{issue_number}.py
-   For example, if issue number is 128, save it as: test128.py
-   IMPORTANT: The filename must be exactly "test{issue_number}.py" (no underscores, no prefixes)
-   PREFER tests/ directory to avoid setuptools "Multiple top-level modules" conflicts
+   - IMPORTANT: The filename must be exactly "test{issue_number}.py"
+   - DO NOT use the unittest framework (no class inheriting from unittest.TestCase)
 
-5. Make sure the test:
-   - Uses proper unittest assertions
-   - Has clear test method names
-   - Includes docstrings explaining what is being tested
-   - Handles edge cases appropriately
+5. Make sure the script:
+   - Uses standard `assert` statements
+   - Contains a `if __name__ == "__main__":` block
+   - Exits with status code 0 if the test passes (reproduction successful/fix verified)
+   - Raises an exception or exits with non-zero status if the test fails
+   - Includes comments explaining the reproduction steps
 """)
     
     return "\n".join(prompt_parts)

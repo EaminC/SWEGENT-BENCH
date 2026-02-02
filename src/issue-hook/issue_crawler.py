@@ -320,13 +320,15 @@ class GitHubIssueCrawler:
                     if result.returncode == 0:
                         commit_msg = result.stdout
                         
+                        if not re.search(rf'#{issue_number}\b', commit_msg):
+                            continue
+                        
                         # Find PR number in commit message
-                        # GitHub merge commits: "Merge pull request #123"
                         pr_match = re.search(r'Merge pull request #(\d+)', commit_msg)
                         if pr_match:
                             pr_numbers.add(int(pr_match.group(1)))
                         
-                        # Squash merge format: "(#123)"
+                        # Squash merge format
                         pr_match = re.search(r'\(#(\d+)\)', commit_msg)
                         if pr_match:
                             pr_numbers.add(int(pr_match.group(1)))
@@ -357,7 +359,7 @@ class GitHubIssueCrawler:
     
     def _get_all_closed_issues(self) -> List[Dict]:
         """
-        Get all closed issues
+        Get all closed issues, excluding those closed as 'not planned'.
         
         Returns:
             List of issues
@@ -383,8 +385,20 @@ class GitHubIssueCrawler:
             if len(data) == 0:
                 break
             
-            # Filter out pull requests (GitHub API includes PRs in issues)
-            page_issues = [item for item in data if 'pull_request' not in item]
+            # Filter page results
+            page_issues = []
+            for item in data:
+                # 1. Skip Pull Requests (GitHub API includes PRs in the issues endpoint)
+                if 'pull_request' in item:
+                    continue
+                
+                # 2. Skip issues "Closed as not planned"
+                # state_reason can be 'completed', 'not_planned', or None (legacy/default)
+                if item.get('state_reason') == 'completed':
+                    continue
+                
+                page_issues.append(item)
+            
             issues.extend(page_issues)
             
             print(f"Fetched page {page}, total {len(issues)} issues so far")
@@ -394,7 +408,7 @@ class GitHubIssueCrawler:
             if len(data) < per_page:
                 break
         
-        print(f"Total {len(issues)} closed issues fetched")
+        print(f"Total {len(issues)} closed issues fetched (excluding 'not_planned')")
         return issues
     
     def _get_issue_linked_prs(self, issue_number: int, issue_body: str = "") -> List[Dict]:
