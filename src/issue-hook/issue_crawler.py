@@ -30,7 +30,8 @@ class GitHubIssueCrawler:
                  max_workers: int = 5,
                  min_added: Optional[int] = None, max_added: Optional[int] = None,
                  min_deleted: Optional[int] = None, max_deleted: Optional[int] = None,
-                 min_total_lines: Optional[int] = None, max_total_lines: Optional[int] = None):
+                 min_total_lines: Optional[int] = None, max_total_lines: Optional[int] = None,
+                 require_test_patch: bool = False):
         """
         Initialize crawler
 
@@ -45,6 +46,7 @@ class GitHubIssueCrawler:
             max_deleted: Maximum deleted lines in PR patch (inclusive); None = no filter
             min_total_lines: Minimum (added+deleted) lines in PR patch (inclusive); None = no filter
             max_total_lines: Maximum (added+deleted) lines in PR patch (inclusive); None = no filter
+            require_test_patch: If True, only keep issues whose linked PR patch touches at least one test file (swe-factory-style path rules)
         """
         self.repo = repo
         self.github_token = github_token or os.getenv("GITHUB_TOKEN")
@@ -62,7 +64,8 @@ class GitHubIssueCrawler:
         self.max_deleted = max_deleted
         self.min_total_lines = min_total_lines
         self.max_total_lines = max_total_lines
-        
+        self.require_test_patch = require_test_patch
+
         # Initialize LLM client
         self.llm_client = LLMClient()
         
@@ -116,7 +119,54 @@ class GitHubIssueCrawler:
                     elif p.startswith('b/'):
                         seen.add(p[2:])
         return [p for p in seen if p and p != '/dev/null']
-    
+
+    # Test path rules (swe-factory-style + common patterns), used when require_test_patch=True
+    _TEST_SEGMENTS = frozenset(
+        {"tests", "Tests", "test", "Test", "__tests__", "spec", "testing", "e2e", "cypress"}
+    )
+    _TEST_DIR_PREFIXES = (
+        "tests/", "test/", "__tests__/", "spec/", "cypress/", "e2e/",
+        "testing/", "unit_test/", "unit_tests/", "integration_tests/",
+    )
+    _TEST_FILES = (
+        "pytest.ini", "jest.config.js", "jest.config.ts", "vitest.config.js",
+        "karma.conf.js", "cypress.config.js", ".mocharc.js",
+    )
+
+    def _is_test_path(self, path: str) -> bool:
+        """True if path looks like a test file/dir (swe-factory-style + common). Used when require_test_patch=True."""
+        p = (path or "").replace("\\", "/").strip()
+        if not p:
+            return False
+        segments = p.split("/")
+        base = segments[-1] if segments else ""
+        if any(seg in self._TEST_SEGMENTS for seg in segments):
+            return True
+        if p.startswith("test_"):
+            return True
+        if base.startswith("test_"):
+            return True
+        if p.endswith("_test.py"):
+            return True
+        if p.endswith(".test"):
+            return True
+        for d in self._TEST_DIR_PREFIXES:
+            if p == d.rstrip("/") or p.startswith(d) or ("/" + d) in p:
+                return True
+        if base in self._TEST_FILES:
+            return True
+        if re.match(r"^test_.*\.py$", base) or re.match(r"^.*_test\.py$", base):
+            return True
+        if re.match(r"^.*\.(test|spec)\.(js|ts|jsx|tsx)$", base):
+            return True
+        return False
+
+    def _patch_has_test_file(self, pr: Dict) -> bool:
+        """True if PR patch touches at least one path that is a test file/dir."""
+        patch = pr.get("patch") or ""
+        paths = self._get_patch_file_paths(patch)
+        return any(self._is_test_path(p) for p in paths)
+
     def _patch_must_kick(self, pr: Dict) -> bool:
         """
         Must-kick filter: exclude PRs that are not meaningful for agent-issue evaluation.
@@ -711,6 +761,16 @@ Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
                 return None
             with self.print_lock:
                 print(f"  ✓ {len(merged_prs)} PR(s) within patch line bounds")
+
+        # Condition 7 (optional): Require at least one PR patch to touch a test file (swe-factory-style)
+        if self.require_test_patch:
+            prs_with_test = [pr for pr in merged_prs if self._patch_has_test_file(pr)]
+            if not prs_with_test:
+                with self.print_lock:
+                    print(f"  ✗ No PR with test file in patch (--require-test-patch)")
+                return None
+            with self.print_lock:
+                print(f"  ✓ {len(prs_with_test)} PR(s) have test file in patch")
         
         # Create filtered issue (without AI judgment yet)
         filtered_issue = {
@@ -1000,6 +1060,8 @@ Examples:
                        help='Minimum (added + deleted) lines in PR patch (inclusive); default no limit')
     parser.add_argument('--max-total-lines', type=int, default=None,
                        help='Maximum (added + deleted) lines in PR patch (inclusive); default no limit')
+    parser.add_argument('--require-test-patch', action='store_true',
+                       help='Only keep issues whose linked PR patch touches at least one test file (swe-factory-style path rules); default off')
     
     args = parser.parse_args()
     
@@ -1015,6 +1077,7 @@ Examples:
         max_deleted=args.max_deleted,
         min_total_lines=args.min_total_lines,
         max_total_lines=args.max_total_lines,
+        require_test_patch=args.require_test_patch,
     )
     
     if args.local_clone:
@@ -1035,6 +1098,8 @@ Examples:
         print("Sequential processing (to avoid API rate limits)")
         print("Tip: Use --local-clone for faster concurrent processing")
         print("="*60 + "\n")
+    if args.require_test_patch:
+        print("Filter: only issues whose linked PR patch touches a test file (--require-test-patch)\n")
     
     crawler.run()
 

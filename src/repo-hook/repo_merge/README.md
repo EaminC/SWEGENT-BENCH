@@ -32,13 +32,22 @@ python main.py --output /path/to/output.json
 
 # Detailed output (include stars, sources, statistics)
 python main.py --detailed
+
+# Only keep repos that contain test paths (common patterns + inlight heuristic JSON); writes test_paths per repo
+python main.py --detailed --filter-has-test
+
+# Custom heuristic path list (default: data/inlight/test_path_patterns_topk.json)
+python main.py --filter-has-test --test-patterns-json /path/to/test_path_patterns_topk.json
 ```
 
 ### Parameter Description
 
-- `--data-dir`: Data file directory (default: `/home/cc/SWGENT-Bench/data/hooked_repo`)
+- `--data-dir`: Data file directory (default: `data/hooked_repo`)
 - `--output`: Output file path (default: `agent_repo.json` in data directory)
 - `--detailed`: Detailed output mode, include stars, sources and statistics
+- `--filter-has-test`: Only keep repos that have test paths (common dirs/files + heuristic JSON); adds `test_paths` to each repo and forces detailed output
+- `--test-patterns-json`: Path to heuristic test paths JSON (default: `data/inlight/test_path_patterns_topk.json`)
+- `--github-token`: GitHub token for tree API (or set `GITHUB_TOKEN`); required when using `--filter-has-test`
 
 ## Output Format
 
@@ -72,11 +81,14 @@ python main.py --detailed
       "sources": ["github_repo_2025-10-13.json"],
       "source_types": ["github_repo"],
       "original_sources": ["Shubhamsaboo/awesome-llm-apps", "rohitg00/awesome-ai-apps"],
-      "source_count": 1
+      "source_count": 1,
+      "test_paths": ["tests", "tests/test_example.py", "pytest.ini"]
     }
   ]
 }
 ```
+
+When using `--filter-has-test`, each repository in `repositories` includes a `test_paths` array (paths in that repo that matched common or heuristic test patterns).
 
 ## Workflow
 

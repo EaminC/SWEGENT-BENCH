@@ -2,15 +2,22 @@
 """
 GitHub Agent Repository Merge Tool
 
-Intelligently read and merge agent repository data from different tools
+Intelligently read and merge agent repository data from different tools.
+Optional: filter to repos that contain test paths (common patterns + inlight heuristic JSON).
 """
 
 import json
 import os
+import time
 from datetime import datetime
 from typing import Dict, List, Set
 from pathlib import Path
 import argparse
+
+try:
+    from .repo_test_filter import load_heuristic_paths, repo_has_test_paths
+except ImportError:
+    from repo_test_filter import load_heuristic_paths, repo_has_test_paths
 
 
 class RepoMerger:
@@ -278,7 +285,17 @@ def main():
                        help='Output file path (default: agent_repo.json in data directory)')
     parser.add_argument('--detailed', action='store_true',
                        help='Detailed output (include stars, sources, etc.)')
+    default_test_patterns = str(project_root / "data" / "inlight" / "test_path_patterns_topk.json")
+    parser.add_argument('--filter-has-test', action='store_true',
+                       help='Only keep repos that contain test paths (common patterns + heuristic JSON)')
+    parser.add_argument('--test-patterns-json', type=str, default=default_test_patterns,
+                       help=f'Path to heuristic test paths JSON (default: {default_test_patterns})')
+    parser.add_argument('--github-token', type=str, default=None,
+                       help='GitHub token for API (or set GITHUB_TOKEN); needed when using --filter-has-test')
     args = parser.parse_args()
+
+    if not args.github_token:
+        args.github_token = os.getenv('GITHUB_TOKEN')
     
     # Determine output path
     if args.output is None:
@@ -289,6 +306,9 @@ def main():
     print(f"Data directory: {args.data_dir}")
     print(f"Output file: {args.output}")
     print(f"Output mode: {'Detailed' if args.detailed else 'Simple'}")
+    if args.filter_has_test:
+        print("Filter: only repos with test paths (common + heuristic)")
+        print(f"Test patterns: {args.test_patterns_json}")
     print("=" * 60)
     
     # Create merger and execute merge
@@ -298,9 +318,39 @@ def main():
     if not result:
         return
     
+    # Optional: filter to repos that have test paths and attach test_paths to each repo
+    if args.filter_has_test:
+        heuristic = load_heuristic_paths(args.test_patterns_json)
+        print(f"\n[Filter] Loaded {len(heuristic)} heuristic paths from {args.test_patterns_json}")
+        if not args.github_token:
+            print("Warning: No GITHUB_TOKEN; API rate limits may block tree fetches.")
+        merged_count = len(result['repositories'])
+        filtered = []
+        for i, repo in enumerate(result['repositories'], 1):
+            name = repo['name']
+            print(f"  [{i}/{merged_count}] {name} ...", end=" ", flush=True)
+            has_test, test_paths = repo_has_test_paths(name, heuristic, args.github_token)
+            if has_test:
+                repo = dict(repo)
+                repo['test_paths'] = test_paths
+                filtered.append(repo)
+                print(f"✓ {len(test_paths)} test paths")
+            else:
+                print("✗ no test paths")
+            time.sleep(0.3)
+        result['repositories'] = filtered
+        result['statistics']['total_repos'] = len(filtered)
+        result['statistics']['from_github_archive'] = len([r for r in filtered if 'github_archive' in r['source_types']])
+        result['statistics']['from_github_repo'] = len([r for r in filtered if 'github_repo' in r['source_types']])
+        result['statistics']['from_both'] = len([r for r in filtered if len(r['source_types']) > 1])
+        result['statistics']['multi_source'] = len([r for r in filtered if r['source_count'] > 1])
+        print(f"\nAfter test filter: {len(filtered)} repositories (from {merged_count} merged)")
+        # When filtering by test we always output detailed so test_paths are included
+        args.detailed = True
+    
     # Generate output by mode
     if args.detailed:
-        # Detailed mode: include all information
+        # Detailed mode: include all information (and test_paths if --filter-has-test)
         output = result
     else:
         # Simple mode (default): output repository names list only
@@ -325,7 +375,8 @@ def main():
         print("\nTop 10 repositories (sorted by stars):")
         for i, repo in enumerate(result['repositories'][:10], 1):
             sources_info = f"{repo['source_count']} sources" if repo['source_count'] > 1 else "1 sources"
-            print(f"  {i}. {repo['name']} ({repo['stars']} ⭐, {sources_info})")
+            test_info = f", {len(repo.get('test_paths', []))} test paths" if repo.get('test_paths') else ""
+            print(f"  {i}. {repo['name']} ({repo['stars']} ⭐, {sources_info}{test_info})")
 
 
 if __name__ == "__main__":

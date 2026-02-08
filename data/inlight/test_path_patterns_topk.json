@@ -1,0 +1,18 @@
+{
+  "top_k": 20,
+  "min_count": 3,
+  "paths": [
+    "tests",
+    "tests/conftest.py",
+    "tests/__init__.py",
+    "test",
+    "pytest.ini"
+  ],
+  "counts": {
+    "tests": 18,
+    "tests/conftest.py": 7,
+    "tests/__init__.py": 7,
+    "test": 4,
+    "pytest.ini": 4
+  }
+}
