@@ -6,9 +6,11 @@ runtime and unit testing environments, ensuring multi-language (Node.js + Python
 support in the test stage if required.
 """
 
+import json
+import os
 import sys
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # 确保 that the necessary module (tools.api.main.chat) can be imported
 PROJECT_ROOT = Path(__file__).resolve().parents[2]  # e.g., /home/cc/SWEGENT-BENCH/source
@@ -98,10 +100,14 @@ def read_files(files: List[Path]) -> List[Dict[str, str]]:
 
 # NOTE: This build_prompt is now designed for the FINAL, most complex iteration 
 # (Step 3: Force multi-language, force unit test, fix entry path).
-def build_prompt(file_entries: List[Dict[str, str]]) -> str:
+def build_prompt(
+    file_entries: List[Dict[str, str]],
+    test_paths_list: Optional[List[str]] = None,
+) -> str:
     """
     Assemble the final prompt with all constraints: multi-language setup, 
     unit testing mandate, and fixing the application entry path inference.
+    test_paths_list: known test paths/dirs from agent_repo (included in prompt so LLM supports them).
     """
     
     # --- Language Detection Logic ---
@@ -151,6 +157,11 @@ def build_prompt(file_entries: List[Dict[str, str]]) -> str:
         "",
         
         "1. **Test/Build Stage (AS test_builder):** This stage MUST install ALL dependencies (development included) and explicitly configure the environment to run the project build (inferred) AND **Python unit tests** (`python -m unittest discover`) to ensure repository quality.",
+        "   If the file list below includes **known test file paths** (e.g. under tests/, or test_*.py), read their content and ensure your Dockerfile installs any required test dependencies and configures the environment so these tests can be executed.",
+        *(
+            [f"   **Known test paths for this repo** (ensure Dockerfile supports running them): {', '.join(p.strip() for p in test_paths_list if p and isinstance(p, str))}"]
+            if test_paths_list else []
+        ),
         "2. **Minimal Runtime Image:** Use multi-stage build. The final image MUST be minimal, containing only production dependencies (no test tools).",
         "3. **Inference:** Infer package managers, required ports (EXPOSE), and installation steps from the provided file contents.",
         "",
@@ -190,17 +201,41 @@ def write_env_dockerfile(repo_root: Path, content: str) -> Path:
     return target
 
 
-def run_docker_build_flow(repo_root: Path) -> Path:
-    """Scan -> Assemble Prompt -> Call AI -> Write env.dockerfile."""
+def run_docker_build_flow(repo_root: Path, test_paths: Optional[List[str]] = None) -> Path:
+    """Scan -> Assemble Prompt -> Call AI -> Write env.dockerfile.
+    If test_paths is provided (e.g. from REPO_TEST_PATHS env or agent_repo test_paths),
+    those paths are included in the context so the AI can ensure the Dockerfile supports running them.
+    """
     print("--- Dockerfile Generation Flow Started ---")
     
     files = find_target_files(repo_root)
     print(f"1. Found {len(files)} key files for context.")
     
     file_entries = read_files(files)
+    if not test_paths:
+        test_paths = []
+        try:
+            raw = os.environ.get("REPO_TEST_PATHS")
+            if raw:
+                test_paths = json.loads(raw)
+        except Exception:
+            pass
+    for p in test_paths:
+        if not isinstance(p, str) or not p.strip():
+            continue
+        p = p.strip().replace("\\", "/")
+        full = repo_root / p
+        if full.is_file() and full.exists():
+            if not any(e.get("path") == p for e in file_entries):
+                try:
+                    content = full.read_text(encoding="utf-8", errors="replace")
+                    file_entries.append({"path": p, "content": content})
+                    print(f"   Added known test file: {p}")
+                except Exception:
+                    pass
     
     # NOTE: This step assumes the FINAL prompt (Step 3) is being built.
-    prompt = build_prompt(file_entries)
+    prompt = build_prompt(file_entries, test_paths_list=test_paths or None)
     
     print("2. Calling LLM to generate Dockerfile... (Wait time depends on API)")
     ai_result = ask_ai(prompt)

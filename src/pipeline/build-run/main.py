@@ -11,7 +11,7 @@ import re
 import subprocess
 import argparse
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Dict
+from typing import Tuple, Optional, Dict, List
 
 # Add parent directories to path to import forge api
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -37,12 +37,47 @@ def validate_repo_structure(repo_path: Path) -> Dict[str, bool]:
     return structure
 
 
-def agentless_init_dockerfile(repo_path: Path) -> bool:
+def load_repo_test_paths_from_agent_json(
+    agent_repo_json_path: Path,
+    repo_path: Path,
+    repo_name_override: Optional[str] = None,
+) -> Optional[List[str]]:
     """
-    Use agentless method to initialize env.dockerfile
+    Load test_paths for the current repo from agent_repo.json (detailed format).
+    If the repo has test_paths (from --filter-has-test), return them; otherwise return None.
+    """
+    if not agent_repo_json_path.exists():
+        return None
+    try:
+        data = json.loads(agent_repo_json_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    repos = data.get("repositories") if isinstance(data, dict) else None
+    if not repos or not isinstance(repos, list):
+        return None
+    # Match repo: by repo_name_override (e.g. "owner/repo") or by repo_path.name
+    repo_name = repo_name_override or repo_path.name
+    for r in repos:
+        if not isinstance(r, dict):
+            continue
+        name = r.get("name") or ""
+        if repo_name_override:
+            if name == repo_name_override:
+                return r.get("test_paths") or None
+        else:
+            if name.split("/")[-1] == repo_name or name == repo_name:
+                return r.get("test_paths") or None
+    return None
+
+
+def agentless_init_dockerfile(repo_path: Path, test_paths: Optional[List[str]] = None) -> bool:
+    """
+    Use agentless method to initialize env.dockerfile.
+    If test_paths is provided (e.g. from agent_repo test_paths or inlight), the AI is prompted to include and support those test files.
     
     Args:
         repo_path: Path to repository
+        test_paths: Optional list of repo-relative test file paths to include in context
         
     Returns:
         True if initialization succeeded, False otherwise
@@ -71,9 +106,9 @@ def agentless_init_dockerfile(repo_path: Path) -> bool:
         sys.modules["docker_build_init"] = module
         spec.loader.exec_module(module)
         
-        # Call the run_docker_build_flow function
+        # Call the run_docker_build_flow function (pass test_paths when provided)
         print("Calling agentless generator...")
-        result_path = module.run_docker_build_flow(repo_path)
+        result_path = module.run_docker_build_flow(repo_path, test_paths=test_paths)
         
         if result_path and result_path.exists():
             print(f"\n✓ env.dockerfile generated successfully: {result_path}")
@@ -861,6 +896,12 @@ def main():
         help="Use agentless method to generate initial Dockerfile before agent loop (default: disabled, recommended for better starting point)"
     )
     parser.add_argument(
+        "--repo-name",
+        type=str,
+        metavar="OWNER/REPO",
+        help="Repo identifier for looking up test_paths in agent_repo.json (e.g. TsinghuaDatabaseGroup/DB-GPT); optional if repo path name matches"
+    )
+    parser.add_argument(
         "repo_path",
         type=str,
         nargs="?",
@@ -891,6 +932,23 @@ def main():
     print(f"Agentless init: {'Enabled' if args.use_agentless_init else 'Disabled'}")
     print(f"{'='*80}")
     
+    # Resolve project root and default agent_repo.json path
+    project_root = Path(__file__).resolve().parent.parent.parent
+    default_agent_repo_json = project_root / "data" / "hooked_repo" / "agent_repo.json"
+    
+    # Load repo test_paths from agent_repo.json when using agentless init (有测试就自动有 没有就没有)
+    agentless_test_paths = None
+    if args.use_agentless_init and default_agent_repo_json.exists():
+        agentless_test_paths = load_repo_test_paths_from_agent_json(
+            default_agent_repo_json,
+            repo_path,
+            repo_name_override=getattr(args, "repo_name", None),
+        )
+        if agentless_test_paths:
+            print(f"Loaded {len(agentless_test_paths)} repo test paths from agent_repo.json for this repo")
+        else:
+            print("No test_paths in agent_repo.json for this repo (or repo not found); continuing without")
+    
     # Validate issue_json if provided
     issue_json_path = None
     if args.issue_json:
@@ -912,7 +970,7 @@ def main():
         print("PHASE 0: Agentless Initialization")
         print(f"{'='*80}")
         
-        agentless_success = agentless_init_dockerfile(repo_path)
+        agentless_success = agentless_init_dockerfile(repo_path, test_paths=agentless_test_paths)
         if agentless_success:
             print("\n✓ Agentless initialization completed successfully")
             print("  Starting agent loop from initialized Dockerfile...")

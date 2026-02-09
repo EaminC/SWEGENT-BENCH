@@ -30,8 +30,7 @@ class GitHubIssueCrawler:
                  max_workers: int = 5,
                  min_added: Optional[int] = None, max_added: Optional[int] = None,
                  min_deleted: Optional[int] = None, max_deleted: Optional[int] = None,
-                 min_total_lines: Optional[int] = None, max_total_lines: Optional[int] = None,
-                 require_test_patch: bool = False):
+                 min_total_lines: Optional[int] = None, max_total_lines: Optional[int] = None):
         """
         Initialize crawler
 
@@ -46,7 +45,6 @@ class GitHubIssueCrawler:
             max_deleted: Maximum deleted lines in PR patch (inclusive); None = no filter
             min_total_lines: Minimum (added+deleted) lines in PR patch (inclusive); None = no filter
             max_total_lines: Maximum (added+deleted) lines in PR patch (inclusive); None = no filter
-            require_test_patch: If True, only keep issues whose linked PR patch touches at least one test file (swe-factory-style path rules)
         """
         self.repo = repo
         self.github_token = github_token or os.getenv("GITHUB_TOKEN")
@@ -64,7 +62,6 @@ class GitHubIssueCrawler:
         self.max_deleted = max_deleted
         self.min_total_lines = min_total_lines
         self.max_total_lines = max_total_lines
-        self.require_test_patch = require_test_patch
 
         # Initialize LLM client
         self.llm_client = LLMClient()
@@ -166,6 +163,12 @@ class GitHubIssueCrawler:
         patch = pr.get("patch") or ""
         paths = self._get_patch_file_paths(patch)
         return any(self._is_test_path(p) for p in paths)
+
+    def _get_test_paths_in_patch(self, pr: Dict) -> List[str]:
+        """Return list of paths in PR patch that are test files/dirs (swe-factory-style)."""
+        patch = pr.get("patch") or ""
+        paths = self._get_patch_file_paths(patch)
+        return sorted({p for p in paths if self._is_test_path(p)})
 
     def _patch_must_kick(self, pr: Dict) -> bool:
         """
@@ -762,16 +765,12 @@ Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
             with self.print_lock:
                 print(f"  ✓ {len(merged_prs)} PR(s) within patch line bounds")
 
-        # Condition 7 (optional): Require at least one PR patch to touch a test file (swe-factory-style)
-        if self.require_test_patch:
-            prs_with_test = [pr for pr in merged_prs if self._patch_has_test_file(pr)]
-            if not prs_with_test:
-                with self.print_lock:
-                    print(f"  ✗ No PR with test file in patch (--require-test-patch)")
-                return None
-            with self.print_lock:
-                print(f"  ✓ {len(prs_with_test)} PR(s) have test file in patch")
-        
+        # Add test_paths_in_patch to each PR (no filter: issues without test in patch are kept)
+        merged_prs = [
+            {**pr, 'test_paths_in_patch': self._get_test_paths_in_patch(pr)}
+            for pr in merged_prs
+        ]
+
         # Create filtered issue (without AI judgment yet)
         filtered_issue = {
             'number': issue_number,
@@ -927,12 +926,35 @@ Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
         
         return agent_issues
     
+    def _get_repo_existing_test_paths(self) -> List[str]:
+        """
+        Load 已有 test paths for current repo from hooked repo (agent_repo.json).
+        hooked issue 从 hooked repo 继承：repo 的 test_paths 写入每个 issue 的 existing_test_paths.
+        """
+        script_dir = Path(__file__).resolve().parent
+        project_root = script_dir.parent.parent
+        agent_repo_json = project_root / "data" / "hooked_repo" / "agent_repo.json"
+        if not agent_repo_json.exists():
+            return []
+        try:
+            data = json.loads(agent_repo_json.read_text(encoding="utf-8"))
+        except Exception:
+            return []
+        repos = data.get("repositories") if isinstance(data, dict) else None
+        if not repos or not isinstance(repos, list):
+            return []
+        for r in repos:
+            if isinstance(r, dict) and (r.get("name") or "") == self.repo:
+                paths = r.get("test_paths")
+                return list(paths) if isinstance(paths, list) else []
+        return []
+
     def save_results(self, issues: List[Dict]) -> str:
         """
         Save results to JSON file
         
         Args:
-            issues: Filtered issues
+            issues: Filtered issues (each may have existing_test_paths from hooked repo)
             
         Returns:
             Output file path
@@ -1006,6 +1028,13 @@ Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
             # 3. Batch AI judgment
             agent_issues = self.batch_ai_judgment(filtered_issues)
             
+            # 3b. 从 hooked repo 继承已有 test：每个 issue 写入 existing_test_paths
+            repo_existing = self._get_repo_existing_test_paths()
+            for iss in agent_issues:
+                iss["existing_test_paths"] = repo_existing
+            if repo_existing:
+                print(f"Inherited {len(repo_existing)} repo test paths (existing_test_paths) from hooked repo for all issues")
+            
             # 4. Save results (these will be preserved)
             output_file = self.save_results(agent_issues)
             
@@ -1060,8 +1089,6 @@ Examples:
                        help='Minimum (added + deleted) lines in PR patch (inclusive); default no limit')
     parser.add_argument('--max-total-lines', type=int, default=None,
                        help='Maximum (added + deleted) lines in PR patch (inclusive); default no limit')
-    parser.add_argument('--require-test-patch', action='store_true',
-                       help='Only keep issues whose linked PR patch touches at least one test file (swe-factory-style path rules); default off')
     
     args = parser.parse_args()
     
@@ -1077,7 +1104,6 @@ Examples:
         max_deleted=args.max_deleted,
         min_total_lines=args.min_total_lines,
         max_total_lines=args.max_total_lines,
-        require_test_patch=args.require_test_patch,
     )
     
     if args.local_clone:
@@ -1098,8 +1124,6 @@ Examples:
         print("Sequential processing (to avoid API rate limits)")
         print("Tip: Use --local-clone for faster concurrent processing")
         print("="*60 + "\n")
-    if args.require_test_patch:
-        print("Filter: only issues whose linked PR patch touches a test file (--require-test-patch)\n")
     
     crawler.run()
 

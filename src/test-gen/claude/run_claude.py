@@ -22,6 +22,31 @@ def load_file_content(file_path):
         return f"[Error reading {file_path}: {e}]"
 
 
+def get_repo_existing_tests(repo_path: Path, max_files: int = 15, max_chars_per_file: int = 3000) -> list:
+    """
+    Find existing test files in repo (tests/*.py, test_*.py, *_test.py) and return
+    list of {"path": str, "content": str} for prompt context.
+    """
+    entries = []
+    seen = set()
+    for pattern in ("tests/*.py", "test/*.py", "**/test_*.py", "**/*_test.py"):
+        for f in repo_path.glob(pattern):
+            if not f.is_file():
+                continue
+            try:
+                rel = str(f.relative_to(repo_path)).replace("\\", "/")
+                if rel in seen:
+                    continue
+                seen.add(rel)
+                content = f.read_text(encoding="utf-8", errors="replace")
+                entries.append({"path": rel, "content": content[:max_chars_per_file]})
+                if len(entries) >= max_files:
+                    return entries
+            except Exception:
+                continue
+    return entries
+
+
 def get_repo_code_summary(repo_path: Path, max_files: int = 50) -> str:
     """
     Get repository code summary
@@ -97,6 +122,18 @@ def build_prompt(repo_path: Path, issue_json_path: Path, repo_build_dir: Path):
     
     # Get repository code summary
     repo_summary = get_repo_code_summary(repo_path)
+    # Get existing test files for reference
+    existing_tests = get_repo_existing_tests(repo_path)
+    # 已有 test：从 hooked repo 继承到 hooked issue 的 existing_test_paths
+    existing_test_paths = issue_data.get("existing_test_paths") or []
+    if not isinstance(existing_test_paths, list):
+        existing_test_paths = []
+    # in-patch test：PR patch 里出现的测试路径（issue crawler 写入 linked_prs[].test_paths_in_patch）
+    test_paths_in_patch = []
+    for pr in issue_data.get("linked_prs", []):
+        for p in pr.get("test_paths_in_patch") or []:
+            if p and p not in test_paths_in_patch:
+                test_paths_in_patch.append(p)
     
     # Build prompt
     prompt_parts.append("=" * 80)
@@ -131,6 +168,29 @@ If tests/ directory doesn't exist, save in repository root directory.
 CRITICAL: The file must be created before you finish.
 """)
     prompt_parts.append("")
+    if existing_test_paths:
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("EXISTING TEST PATHS IN THIS REPO (from hooked repo, 已有 test)")
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("These paths are the repo's known test locations (inherited from hooked repo). Reference them when writing your script.\n")
+        prompt_parts.append("\n".join(f"  - {p}" for p in existing_test_paths))
+        prompt_parts.append("")
+    if existing_tests:
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("EXISTING TESTS IN REPOSITORY (file content for reference)")
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("Use the style and structure of these existing tests when writing your reproduction script.\n")
+        for ent in existing_tests:
+            prompt_parts.append(f"--- {ent['path']} ---")
+            prompt_parts.append(ent["content"])
+            prompt_parts.append("")
+    if test_paths_in_patch:
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("TEST FILES MODIFIED IN THE FIX PATCH (in-patch test, pay special attention)")
+        prompt_parts.append("=" * 80)
+        prompt_parts.append("The following paths were modified in the fix patch. Your reproduction test should align with or cover behavior touched by these tests.\n")
+        prompt_parts.append("\n".join(f"  - {p}" for p in test_paths_in_patch))
+        prompt_parts.append("")
     
     prompt_parts.append("=" * 80)
     prompt_parts.append("ISSUE INFORMATION")
@@ -199,20 +259,21 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
     prompt_parts.append("=" * 80)
     prompt_parts.append("""
 1. Analyze the issue description and the patch to understand what bug was fixed
-2. Examine the repository structure to understand the codebase
-3. Write a standalone reproduction script that:
+2. Use EXISTING TEST PATHS IN THIS REPO (已有 test from hooked repo) and EXISTING TESTS file content (above) to match style and structure
+3. If TEST FILES MODIFIED IN THE FIX PATCH (in-patch test) are listed above, pay special attention: your reproduction should align with or extend coverage for behavior touched by those tests
+4. Write a standalone reproduction script that:
    - Reproduces the bug condition (script should FAIL/Raise Error with buggy code)
    - Verifies the fix works (script should PASS/Exit 0 with fixed code)
    - Uses mocks for all external API calls
    - Is self-contained and can run independently
 
-4. Save the script with the exact filename: test{issue_number}.py
+5. Save the script with the exact filename: test{issue_number}.py
    - If tests/ directory exists, save there: tests/test{issue_number}.py
    - Otherwise, save in repository root: test{issue_number}.py
    - IMPORTANT: The filename must be exactly "test{issue_number}.py"
    - DO NOT use the unittest framework (no class inheriting from unittest.TestCase)
 
-5. Make sure the script:
+6. Make sure the script:
    - Uses standard `assert` statements
    - Contains a `if __name__ == "__main__":` block
    - Exits with status code 0 if the test passes (reproduction successful/fix verified)
