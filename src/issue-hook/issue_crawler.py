@@ -447,7 +447,7 @@ class GitHubIssueCrawler:
                 
                 # 2. Skip issues "Closed as not planned"
                 # state_reason can be 'completed', 'not_planned', or None (legacy/default)
-                if item.get('state_reason') == 'completed':
+                if item.get('state_reason') != 'completed':
                     continue
                 
                 page_issues.append(item)
