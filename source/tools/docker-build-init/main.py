@@ -106,7 +106,7 @@ def build_prompt(
 ) -> str:
     """
     Assemble the final prompt with all constraints: multi-language setup, 
-    unit testing mandate, and fixing the application entry path inference.
+    standalone script execution, and fixing the application entry path inference.
     test_paths_list: known test paths/dirs from agent_repo (included in prompt so LLM supports them).
     """
     
@@ -155,9 +155,11 @@ def build_prompt(
         "",
         entrypoint_fix_note,
         "",
-        
-        "1. **Test/Build Stage (AS test_builder):** This stage MUST install ALL dependencies (development included) and explicitly configure the environment to run the project build (inferred) AND **Python unit tests** (`python -m unittest discover`) to ensure repository quality.",
-        "   If the file list below includes **known test file paths** (e.g. under tests/, or test_*.py), read their content and ensure your Dockerfile installs any required test dependencies and configures the environment so these tests can be executed.",
+        # UPDATED SECTION BELOW
+        "1. **Test/Build Stage (AS test_builder):** This stage MUST install ALL dependencies (development included) and explicitly configure the environment to run the project build (inferred) AND **execute the standalone Python test script** found in the file list (e.g., `reproduce_issue.py` or similar).",
+        "   - **DO NOT** use `python -m unittest discover`.", 
+        "   - Instead, command the Dockerfile to run the specific python script directly (e.g., `RUN python reproduce_issue.py`).",
+        "   If the file list below includes **known test file paths**, read their content and ensure your Dockerfile installs any required test dependencies and configures the environment so these scripts can be executed.",
         *(
             [f"   **Known test paths for this repo** (ensure Dockerfile supports running them): {', '.join(p.strip() for p in test_paths_list if p and isinstance(p, str))}"]
             if test_paths_list else []

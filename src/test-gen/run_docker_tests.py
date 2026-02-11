@@ -513,7 +513,7 @@ def check_docker_available() -> Tuple[bool, Optional[str]]:
 
 def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, version_name: str) -> Tuple[bool, str]:
     """
-    Run test in Docker
+    Run test in Docker by executing the standalone script directly.
     
     Returns:
         (success, output)
@@ -609,27 +609,22 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
     test_relative_path = test_file.relative_to(repo_path)
     # Ensure path uses forward slashes for Docker compatibility (normalize all backslashes)
     test_relative_path_str = str(test_relative_path).replace('\\', '/')
-    # Also normalize the parent directory path
-    test_parent_path = str(test_file.parent).replace('\\', '/')
     
     # Use absolute path in container to avoid path issues
     test_absolute_path = f"/workspace/{test_relative_path_str}"
     
-    # Try different test run methods
+    # Try different test run methods (REMOVED UNITTEST METHODS)
     run_commands = [
         # Method 1: Run python file directly with absolute path (most reliable)
         ['python3', test_absolute_path],
         # Method 2: Run with relative path (fallback)
         ['python3', test_relative_path_str],
-        # Method 3: Run as unittest module
-        ['python3', '-m', 'unittest', test_relative_path_str.replace('.py', '').replace('/', '.')],
-        # Method 4: Use python -m unittest discover
-        ['python3', '-m', 'unittest', 'discover', '-s', test_parent_path, '-p', test_file.name],
     ]
     
     for i, run_cmd in enumerate(run_commands, 1):
         # Build docker run command with platform specification
         # Use --platform flag and ensure we're using the correct architecture
+        # Use simple command structure to run the script
         cmd = [
             'docker', 'run', '--rm',
             '--platform', 'linux/amd64',  # Force amd64 platform
@@ -640,7 +635,6 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
         ] + run_cmd
         
         print(f"  Trying method {i}: {' '.join(run_cmd)}")
-        print(f"    Full command: docker run --platform linux/amd64 ...")
         
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         
@@ -653,36 +647,26 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
             print(f"    ⚠ Architecture mismatch error detected!")
             print(f"    Error: {result.stderr[:200] if result.stderr else result.stdout[:200]}")
             
-            # Try to check what's in the container
-            print(f"    Checking container Python installation...")
-            check_cmd = [
-                'docker', 'run', '--rm',
-                '--platform', 'linux/amd64',
-                image_name,
-                'file', '/usr/local/bin/python3'
-            ]
-            check_result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=30)
-            if check_result.returncode == 0:
-                print(f"    Python info: {check_result.stdout.strip()}")
-            
             # Try alternative Python paths
             print(f"    Trying alternative Python paths...")
             alt_python_paths = ['python', '/usr/bin/python3', 'python3.10', 'python3.9', 'python3.11']
             for alt_python in alt_python_paths:
-                alt_cmd = [
+                # Construct command with alternative python
+                alt_cmd_list = [
                     'docker', 'run', '--rm',
                     '--platform', 'linux/amd64',
                     '-v', f'{repo_path}:/workspace',
                     '-w', '/workspace',
                     image_name,
-                    alt_python, test_absolute_path if 'absolute' in locals() else test_relative_path_str
+                    alt_python, test_absolute_path
                 ]
-                alt_result = subprocess.run(alt_cmd, capture_output=True, text=True, timeout=300)
+                
+                alt_result = subprocess.run(alt_cmd_list, capture_output=True, text=True, timeout=300)
                 if alt_result.returncode == 0:
                     print(f"    ✓ Success with {alt_python}!")
                     return True, alt_result.stdout + alt_result.stderr
                 elif 'cannot execute' not in (alt_result.stderr or "").lower():
-                    # If we got a different error (not architecture), this Python works
+                    # If we got a different error (not architecture), this Python works but script failed
                     return False, alt_result.stdout + alt_result.stderr
         
         # Return if successful or has meaningful output
@@ -690,10 +674,9 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
             return True, result.stdout + result.stderr
         elif result.stdout or result.stderr:
             # If we got output, return it (even if exit code is non-zero)
-            # This helps with debugging
             return False, result.stdout + result.stderr
     
-    return False, "All test run methods failed. Architecture mismatch may be the issue. Check Dockerfile base image."
+    return False, "All test run methods failed. Architecture mismatch or script error."
 
 
 def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Path):

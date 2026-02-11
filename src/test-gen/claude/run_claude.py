@@ -152,7 +152,6 @@ CRITICAL REQUIREMENTS:
 
 SCRIPT STRUCTURE:
 - Use standard Python functions or top-level code
-- Use 'unittest.mock' (or similar) strictly for mocking functionality, NOT for test runners
 - Include a 'if __name__ == "__main__":' block
 - Do NOT define a class inheriting from unittest.TestCase
 
