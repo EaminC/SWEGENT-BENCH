@@ -41,8 +41,8 @@ CRITICAL RULES:
         response = llm_client.simple_chat(
             prompt,
             system_prompt=system_prompt,
-            temperature=0.2,
-            max_tokens=4000
+            temperature=0.2
+           #max_tokens=4000
         )
         
         # Output the response (will be parsed by main.py)

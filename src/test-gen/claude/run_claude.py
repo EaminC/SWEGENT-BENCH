@@ -144,16 +144,16 @@ You are tasked with creating a standalone Python reproduction script for an agen
 
 CRITICAL REQUIREMENTS:
 1. Write a standalone script based on the issue description and the provided patch
-2. The script must NOT use the 'unittest' framework (no unittest.TestCase)
-3. Use standard 'assert' statements to verify the bug described
-4. Mock any remote API calls (LLM providers, external services) - DO NOT make real API calls
-5. The script should raise an AssertionError (or exit with non-zero code) on the buggy version
-6. The script should run successfully (exit with code 0) on the fixed version (after patch)
+2. **Please directly import the class or function from the codebase** and don't write it yourself
+3. The script must NOT use the 'unittest' framework
+4. Use standard 'assert' statements to verify the bug described
+5. Mock any remote API calls (LLM providers, external services) - DO NOT make real API calls
+6. The script should raise an AssertionError (or exit with non-zero code) on the buggy version
+7. The script should run successfully (exit with code 0) on the fixed version (after patch)
 
 SCRIPT STRUCTURE:
 - Use standard Python functions or top-level code
 - Include a 'if __name__ == "__main__":' block
-- Do NOT define a class inheriting from unittest.TestCase
 
 OUTPUT FORMAT:
 You MUST save the script as a Python file. Prefer saving in tests/ directory if it exists,
@@ -270,7 +270,7 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
    - If tests/ directory exists, save there: tests/test{issue_number}.py
    - Otherwise, save in repository root: test{issue_number}.py
    - IMPORTANT: The filename must be exactly "test{issue_number}.py"
-   - DO NOT use the unittest framework (no class inheriting from unittest.TestCase)
+   - DO NOT use the unittest framework
 
 6. Make sure the script:
    - Uses standard `assert` statements
@@ -278,6 +278,7 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
    - Exits with status code 0 if the test passes (reproduction successful/fix verified)
    - Raises an exception or exits with non-zero status if the test fails
    - Includes comments explaining the reproduction steps
+   - Directly import the class or function from the codebase and do not write it yourself
 """)
     
     return "\n".join(prompt_parts)

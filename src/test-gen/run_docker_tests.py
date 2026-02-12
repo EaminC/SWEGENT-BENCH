@@ -511,6 +511,10 @@ def check_docker_available() -> Tuple[bool, Optional[str]]:
         return False, f"Error checking Docker access: {str(e)}"
 
 
+import subprocess
+from pathlib import Path
+from typing import Tuple
+
 def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, version_name: str) -> Tuple[bool, str]:
     """
     Run test in Docker by executing the standalone script directly.
@@ -613,7 +617,7 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
     # Use absolute path in container to avoid path issues
     test_absolute_path = f"/workspace/{test_relative_path_str}"
     
-    # Try different test run methods (REMOVED UNITTEST METHODS)
+    # Try different test run methods (NO UNITTEST METHODS)
     run_commands = [
         # Method 1: Run python file directly with absolute path (most reliable)
         ['python3', test_absolute_path],
