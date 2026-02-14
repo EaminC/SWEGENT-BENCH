@@ -145,7 +145,7 @@ You are tasked with creating a standalone Python reproduction script for an agen
 CRITICAL REQUIREMENTS:
 1. Write a standalone script based on the issue description and the provided patch
 2. **Please directly import the class or function from the codebase** and don't write it yourself
-3. The script must NOT use the 'unittest' framework
+3. The script must NOT use the 'unittest' framework and must NOT import unittest.mock
 4. Use standard 'assert' statements to verify the bug described
 5. Mock any remote API calls (LLM providers, external services) - DO NOT make real API calls
 6. The script should raise an AssertionError (or exit with non-zero code) on the buggy version
@@ -271,6 +271,7 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
    - Otherwise, save in repository root: test{issue_number}.py
    - IMPORTANT: The filename must be exactly "test{issue_number}.py"
    - DO NOT use the unittest framework
+   - DO NOT import unittest.mock
 
 6. Make sure the script:
    - Uses standard `assert` statements
