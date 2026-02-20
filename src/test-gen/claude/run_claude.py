@@ -150,6 +150,7 @@ CRITICAL REQUIREMENTS:
 5. Mock any remote API calls (LLM providers, external services) - DO NOT make real API calls
 6. The script should raise an AssertionError (or exit with non-zero code) on the buggy version
 7. The script should run successfully (exit with code 0) on the fixed version (after patch)
+8. **MUST import sys** at the top of the file and **MUST end the script with `sys.exit(0)`** if all assertions pass
 
 SCRIPT STRUCTURE:
 - Use standard Python functions or top-level code
@@ -274,6 +275,8 @@ When writing tests, you MUST mock remote API interactions. Use the following gui
    - DO NOT import unittest.mock
 
 6. Make sure the script:
+   - Import `sys`
+   - Define the reproduction logic
    - Uses standard `assert` statements
    - Contains a `if __name__ == "__main__":` block
    - Exits with status code 0 if the test passes (reproduction successful/fix verified)

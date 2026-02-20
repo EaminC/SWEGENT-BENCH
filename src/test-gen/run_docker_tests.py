@@ -8,6 +8,7 @@ import sys
 import json
 import subprocess
 import tempfile
+import urllib.request
 from pathlib import Path
 from typing import Optional, Tuple, Dict
 
@@ -154,8 +155,8 @@ def apply_patch(repo_path: Path, patch_content: str) -> bool:
         return False
 
 
-def checkout_commit(repo_path: Path, sha: str) -> bool:
-    """Checkout specified commit with improved error handling"""
+def checkout_commit(repo_path: Path, sha: str, pr_number: Optional[int] = None) -> bool:
+    """Checkout specified commit with improved explicit PR fetching"""
     try:
         # First check if commit exists locally
         check_cmd = ['git', 'cat-file', '-e', sha]
@@ -165,26 +166,26 @@ def checkout_commit(repo_path: Path, sha: str) -> bool:
             print(f"Warning: Commit {sha} does not exist in local repository")
             print("  Attempting to fetch from remote...")
             
-            # Try to fetch from all remotes
-            fetch_result = subprocess.run(
-                ['git', 'fetch', '--all'],
-                cwd=repo_path,
-                capture_output=True,
-                text=True
-            )
+            # Try to fetch from all remotes generally
+            subprocess.run(['git', 'fetch', '--all'], cwd=repo_path, capture_output=True)
             
-            if fetch_result.returncode == 0:
-                # Check again after fetch
-                check_result = subprocess.run(check_cmd, cwd=repo_path, capture_output=True)
-                if check_result.returncode != 0:
-                    print(f"Error: Commit {sha} not found even after fetch")
-                    print("  This commit may be in a different repository or was never pushed")
-                    return False
-                else:
-                    print("  ✓ Commit found after fetch")
-            else:
-                print(f"Error: Failed to fetch from remote: {fetch_result.stderr}")
+            # Explicitly fetch the PR branch (Git ignores these by default)
+            if pr_number:
+                print(f"  Explicitly fetching PR #{pr_number} from origin...")
+                subprocess.run(
+                    ['git', 'fetch', 'origin', f'pull/{pr_number}/head'],
+                    cwd=repo_path,
+                    capture_output=True
+                )
+            
+            # Check if it was successfully fetched
+            check_result = subprocess.run(check_cmd, cwd=repo_path, capture_output=True)
+            if check_result.returncode != 0:
+                print(f"Error: Commit {sha} not found even after fetching PR")
+                print("  This commit may be in a different repository or was never pushed")
                 return False
+            else:
+                print("  ✓ Commit found after fetch")
         
         # Now try to checkout
         cmd = ['git', 'checkout', sha]
@@ -405,7 +406,7 @@ def find_fix_commit_from_git_log(repo_path: Path, pr_number: int, issue_number: 
     """
     Finds the SHA of the commit that FIXED the issue (The Merge Commit).
     """
-    print(f"  ⚠ SHA missing. Searching git log for PR #{pr_number} / Issue #{issue_number}...")
+    print(f"  ⚠ SHA missing. Searching git log for PR #{pr_number} / Issue #{issue_number}...")
     
     # Patterns to find the FIX (Merge or Squash)
     patterns = [
@@ -424,7 +425,7 @@ def find_fix_commit_from_git_log(repo_path: Path, pr_number: int, issue_number: 
             
             if result.returncode == 0 and result.stdout.strip():
                 sha = result.stdout.strip()
-                print(f"   ✓ Found fix commit in log: {sha[:8]} (matched '{pattern}')")
+                print(f"   ✓ Found fix commit in log: {sha[:8]} (matched '{pattern}')")
                 return sha
         except Exception:
             continue
@@ -510,10 +511,6 @@ def check_docker_available() -> Tuple[bool, Optional[str]]:
     except Exception as e:
         return False, f"Error checking Docker access: {str(e)}"
 
-
-import subprocess
-from pathlib import Path
-from typing import Tuple
 
 def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, version_name: str) -> Tuple[bool, str]:
     """
@@ -617,7 +614,7 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
     # Use absolute path in container to avoid path issues
     test_absolute_path = f"/workspace/{test_relative_path_str}"
     
-    # Try different test run methods (NO UNITTEST METHODS)
+    # Try different test run methods
     run_commands = [
         # Method 1: Run python file directly with absolute path (most reliable)
         ['python3', test_absolute_path],
@@ -626,9 +623,6 @@ def run_test_in_docker(repo_path: Path, dockerfile_path: Path, test_file: Path, 
     ]
     
     for i, run_cmd in enumerate(run_commands, 1):
-        # Build docker run command with platform specification
-        # Use --platform flag and ensure we're using the correct architecture
-        # Use simple command structure to run the script
         cmd = [
             'docker', 'run', '--rm',
             '--platform', 'linux/amd64',  # Force amd64 platform
@@ -702,35 +696,6 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         print("ERROR: Docker is not available")
         print("=" * 80)
         print(f"Docker check failed: {docker_error}")
-        
-        # Provide specific fix based on error type
-        if "permission denied" in docker_error.lower() or "docker group" in docker_error.lower():
-            print("\n" + "=" * 80)
-            print("PERMISSION ISSUE DETECTED")
-            print("=" * 80)
-            print("Your user is not in the docker group.")
-            print("\nTo fix this:")
-            print("1. Add your user to the docker group:")
-            print("   sudo usermod -aG docker $USER")
-            print("2. Apply the new group membership:")
-            print("   newgrp docker")
-            print("   # OR log out and log back in")
-            print("3. Verify with: docker ps")
-        else:
-            print("\nPlease:")
-            print("1. Install Docker: https://docs.docker.com/get-docker/")
-            print("2. Ensure Docker is in your PATH")
-            print("3. Verify with: docker --version")
-        
-        # Try to find test file to suggest manual run command
-        test_file = find_test_file(repo_path, issue_number) if issue_number else None
-        if test_file:
-            print(f"\nAlternatively, you can run the test manually (without Docker):")
-            print(f"   cd {repo_path}")
-            print(f"   python3 {test_file.name}")
-        else:
-            print(f"\nAlternatively, you can run the test manually after finding it in: {repo_path}")
-        
         return False
     
     pr_info = get_pr_info(issue_json_path)
@@ -739,30 +704,28 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         print("Error: Cannot get PR information")
         return False
     
+    pr_number = pr_info.get('number')
+    
     # Get patch
     patch_content = pr_info.get('patch')
     use_patch = True
     if not patch_content:
-        print("Warning: PR has no patch information, will try using git checkout")
+        print("Warning: PR has no patch information in JSON, will attempt dynamic fallback later.")
         use_patch = False
     else:
         use_patch = True
 
-    print(f"\nUsing patch: {'Yes' if use_patch else 'No'}")
+    print(f"\nUsing patch locally available: {'Yes' if use_patch else 'No'}")
     
     # Save current git state
     original_branch = subprocess.run(
         ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
-        cwd=repo_path,
-        capture_output=True,
-        text=True
+        cwd=repo_path, capture_output=True, text=True
     ).stdout.strip()
     
     original_sha = subprocess.run(
         ['git', 'rev-parse', 'HEAD'],
-        cwd=repo_path,
-        capture_output=True,
-        text=True
+        cwd=repo_path, capture_output=True, text=True
     ).stdout.strip()
     
     print(f"Current branch: {original_branch}")
@@ -776,7 +739,6 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
             print("Please ensure test file has been generated")
             return False
         
-
         print(f"Found test file: {test_file}")
 
         # Helper: Ensure test file exists in both root and tests/ folder
@@ -784,98 +746,67 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
             tests_dir = repo_path / 'tests'
             root_test = repo_path / test_file.name
             tests_test = tests_dir / test_file.name
-            # Copy to root if not present
+            
             if not root_test.exists():
                 try:
                     root_test.write_bytes(test_file.read_bytes())
                     print(f"   ✓ Copied test to repo root: {root_test}")
                 except Exception as e:
-                    print(f"   ✗ Error copying test to root: {e}")
-            # Copy to tests/ if not present
+                    pass
             if not tests_test.exists():
                 try:
                     tests_dir.mkdir(parents=True, exist_ok=True)
                     tests_test.write_bytes(test_file.read_bytes())
                     print(f"   ✓ Copied test to tests/: {tests_test}")
                 except Exception as e:
-                    print(f"   ✗ Error copying test to tests/: {e}")
-
+                    pass
 
         # ==============================================================================
         # SHA RESOLUTION PHASE
         # ==============================================================================
-        # We try to identify the Git SHAs for both versions before running tests
         
-        pr_number = pr_info.get('number')
-
         # 1. Resolve FIXED SHA (The Merge Commit)
         fixed_sha = get_head_sha(pr_info)
         if not fixed_sha and pr_number:
-            # Fallback: Search Git Log
             fixed_sha = find_fix_commit_from_git_log(repo_path, pr_number, issue_number)
             
         # 2. Resolve BUGGY SHA (The Parent of the Fix)
         buggy_sha = get_base_sha(pr_info)
         if not buggy_sha and fixed_sha:
-            # Fallback: Calculate Parent of Fixed SHA
             try:
                 res = subprocess.run(['git', 'rev-parse', f'{fixed_sha}^1'], 
                                    cwd=repo_path, capture_output=True, text=True)
                 if res.returncode == 0:
                     buggy_sha = res.stdout.strip()
-                    print(f"   ✓ Calculated Buggy SHA (Parent): {buggy_sha[:8]}")
+                    print(f"   ✓ Calculated Buggy SHA (Parent): {buggy_sha[:8]}")
             except Exception:
                 pass
         
         # Test 1: Run on buggy version (before applying patch)
-
-        # After checkout, always ensure test file is present in both locations
         ensure_test_file_in_both_locations(test_file, repo_path)
         print(f"\n{'='*80}")
         print("Test 1: Buggy Version (before applying patch)")
         print(f"{'='*80}")
 
-        # --- START OF INTEGRATION ---
         checkout_success = False
         
-        ## Strategy: Checkout Buggy SHA
         if buggy_sha:
             print(f"Checking out buggy version: {buggy_sha[:8]}...")
             force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
-            checkout_success = checkout_commit(repo_path, buggy_sha)
+            checkout_success = checkout_commit(repo_path, buggy_sha, pr_number=pr_number)
         
         if not checkout_success:
             print("WARNING: Could not checkout buggy commit. Using CURRENT git state.")
-        
-        # if use_patch:
-        #     base_sha = get_base_sha(pr_info)
-        #     if base_sha:
-        #         if not checkout_commit(repo_path, base_sha):
-        #             print("Warning: Cannot checkout base SHA, using current state")
-        #     else:
-        #         print("Warning: No base SHA found in PR info, using current state")
-        # else:
-        #     print("Note: No patch information, using current git state as buggy version")
         
         success_before, output_before = run_test_in_docker(
             repo_path, dockerfile_path, test_file, "Buggy Version"
         )
 
-        # After running buggy version, ensure test file is present in both locations again (in case of checkout)
         ensure_test_file_in_both_locations(test_file, repo_path)
         
         print(f"\nBuggy version test result: {'PASS' if not success_before else 'FAIL'}")
         print("Output:")
         print(output_before)
-        
-        # Classify errors if build failed
-        if not success_before and 'Docker build failed' in output_before:
-            error_info = classify_build_error(output_before)
-            if error_info['type'] != 'unknown':
-                print(f"\nError classification: {error_info['type']}")
-                print("Suggestions:")
-                for suggestion in error_info['suggestions']:
-                    print(f"  - {suggestion}")
         
         expected_before = not success_before  # Buggy version should fail
         
@@ -890,15 +821,28 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         if fixed_sha:
             print(f"Strategy A: Checking out fixed commit: {fixed_sha[:8]}...")
             force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
-            fixed_checkout_success = checkout_commit(repo_path, fixed_sha)
+            fixed_checkout_success = checkout_commit(repo_path, fixed_sha, pr_number=pr_number)
             
         # STRATEGY B: Apply Patch (Fallback if checkout fails or SHA missing)
         if not fixed_checkout_success:
-            if use_patch and patch_content:
+            pr_url = pr_info.get('url')
+            
+            # Patch content is empty, dynamically download it from GitHub
+            if not patch_content and pr_url:
+                try:
+                    patch_url = pr_url + ".patch"
+                    print(f"Strategy B: Fetching patch dynamically from {patch_url}...")
+                    req = urllib.request.Request(patch_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req) as response:
+                        patch_content = response.read().decode('utf-8')
+                        print("  ✓ Successfully downloaded patch from GitHub.")
+                except Exception as e:
+                    print(f"  ✗ Failed to fetch patch: {e}")
+
+            if patch_content:
                 print(f"Strategy B: Checkout failed or SHA missing. Applying patch to buggy version...")
-                # Ensure we are on buggy version first to apply patch cleanly
                 if buggy_sha:
-                    checkout_commit(repo_path, buggy_sha)
+                    checkout_commit(repo_path, buggy_sha, pr_number=pr_number)
                 
                 if apply_patch(repo_path, patch_content):
                     fixed_checkout_success = True
@@ -909,23 +853,7 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
 
         if not fixed_checkout_success:
             print("CRITICAL WARNING: Could not establish Fixed Version state.")
-            print("  Test will run on current state (which might be wrong).")
-        
-        # if use_patch and patch_content:
-        #     # Apply patch
-        #     if not apply_patch(repo_path, patch_content):
-        #         print("Warning: Cannot apply patch, trying to checkout head SHA")
-        #         force_clean_repo(repo_path, protected_paths=[dockerfile_path, test_file])
-        #         head_sha = get_head_sha(pr_info)
-        #         if head_sha:
-        #             checkout_commit(repo_path, head_sha)
-        #         else:
-        #             print("WARNING: Did not check out FIXED.")
-        # else:
-        #     head_sha = get_head_sha(pr_info)
-        #     if head_sha:
-        #         if not checkout_commit(repo_path, head_sha):
-        #             print("Warning: Cannot checkout head SHA")
+            print("  Test will run on current state (which might be wrong).")
         
         success_after, output_after = run_test_in_docker(
             repo_path, dockerfile_path, test_file, "Fixed Version"
@@ -934,15 +862,6 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         print(f"\nFixed version test result: {'PASS' if success_after else 'FAIL'}")
         print("Output:")
         print(output_after)
-        
-        # Classify errors if build failed
-        if not success_after and 'Docker build failed' in output_after:
-            error_info = classify_build_error(output_after)
-            if error_info['type'] != 'unknown':
-                print(f"\nError classification: {error_info['type']}")
-                print("Suggestions:")
-                for suggestion in error_info['suggestions']:
-                    print(f"  - {suggestion}")
         
         expected_after = success_after  # Fixed version should pass
         
@@ -964,13 +883,10 @@ def run_docker_tests(repo_path: Path, dockerfile_path: Path, issue_json_path: Pa
         # Restore original state
         print(f"\nRestoring git state to: {original_branch} ({original_sha})")
         try:
-            # First try to reset all changes
             subprocess.run(['git', 'reset', '--hard', original_sha], cwd=repo_path, check=False)
-            # Then checkout to original branch
             subprocess.run(['git', 'checkout', original_branch], cwd=repo_path, check=False)
         except Exception as e:
             print(f"Warning: Error restoring git state: {e}")
-            print("Please manually restore git state")
 
 
 def main():
@@ -982,19 +898,6 @@ def main():
     repo_path = Path(sys.argv[1]).resolve()
     dockerfile_path = Path(sys.argv[2]).resolve()
     issue_json_path = Path(sys.argv[3]).resolve()
-    
-    # Validate paths
-    if not repo_path.exists():
-        print(f"Error: Repository path does not exist: {repo_path}")
-        sys.exit(1)
-    
-    if not dockerfile_path.exists():
-        print(f"Error: Dockerfile does not exist: {dockerfile_path}")
-        sys.exit(1)
-    
-    if not issue_json_path.exists():
-        print(f"Error: Issue JSON file does not exist: {issue_json_path}")
-        sys.exit(1)
     
     success = run_docker_tests(repo_path, dockerfile_path, issue_json_path)
     sys.exit(0 if success else 1)
