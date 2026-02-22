@@ -20,7 +20,7 @@ client = OpenAI(
 
 def chat(
     messages: List[Dict[str, str]],
-    model: str = "OpenAI/gpt-4o",
+    model: str = "tensorblock/gpt-4.1-mini",
     temperature: float = 0.7,
     max_tokens: Optional[int] = None,
 ) -> str:
