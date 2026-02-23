@@ -9,6 +9,28 @@ import re
 from issue_crawler import GitHubIssueCrawler
 
 
+def check_agent_issue_only(repo, issue_number, github_token=None):
+    """
+    只做「是否为 agent issue」判断：用 crawler 拉取 issue，再用 AI（_is_agent_issue）判断。
+    不检查 closed、关联 PR、是否合并等。供 RQ2 等复用。
+
+    Args:
+        repo: "owner/repo"
+        issue_number: issue 号
+        github_token: 可选
+
+    Returns:
+        (is_agent: bool, llm_response: str, issue: dict | None) 拉取失败或为 PR 时 issue 为 None、llm_response 为空串，is_agent 为 False
+    """
+    crawler = GitHubIssueCrawler(repo, github_token, use_local_clone=False)
+    url = f"{crawler.base_url}/repos/{repo}/issues/{issue_number}"
+    issue = crawler._make_request(url)
+    if not issue or "pull_request" in issue:
+        return False, "", None
+    is_agent, llm_response = crawler._is_agent_issue(issue)
+    return is_agent, (llm_response or "").strip(), issue
+
+
 def parse_input(input_str):
     """
     Parse input string to extract repo and issue number

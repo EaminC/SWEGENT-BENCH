@@ -18,9 +18,77 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 
-# Add forge directory to Python path
+# Add forge directory to Python path (for LLMClient when crawler is used)
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from forge.api import LLMClient
+
+
+def fetch_issue_for_rq2(repo: str, issue_number: int, github_token: Optional[str] = None) -> Optional[Dict]:
+    """
+    Fetch a single issue by repo and issue number via GitHub API.
+    For reuse by RQ2 or other callers. Returns None if fetch fails or item is a PR.
+    """
+    token = github_token or os.getenv("GITHUB_TOKEN")
+    base_url = "https://api.github.com"
+    headers = {"Accept": "application/vnd.github.v3+json"}
+    if token:
+        headers["Authorization"] = f"token {token}"
+    url = f"{base_url}/repos/{repo}/issues/{issue_number}"
+    try:
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        if "pull_request" in data:
+            return None
+        return data
+    except Exception:
+        return None
+
+
+def is_agent_issue_by_rules(issue: Dict) -> bool:
+    """
+    Rule-based agent-issue check using indicators from agent_issue.md (no LLM).
+    For reuse by RQ2 rule_based method.
+    """
+    keywords = [
+        "llm", "lm provider", "openai", "anthropic", "claude", "gpt", "model name", "api key",
+        "prompt", "prompt template", "prompt management",
+        "memory", "history", "storage", "retriev", "message attribute",
+        "tool", "tool invocation", "tool config", "tool implementation", "tool parameter",
+        "workflow", "orchestrat", "agent loop", "hang", "infinite loop",
+        "token", "context length", "tiktoken", "rag", "retriever", "embedder",
+    ]
+    text = ((issue.get("title") or "") + "\n" + (issue.get("body") or "")).lower()
+    if not text.strip():
+        return False
+    return any(kw in text for kw in keywords)
+
+
+def load_agent_criteria() -> str:
+    """Load agent_issue.md content for reuse by RQ2 (forge_ai, claude_agent)."""
+    criteria_path = os.path.join(os.path.dirname(__file__), "agent_issue.md")
+    try:
+        with open(criteria_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return ""
+
+
+def build_agent_issue_prompt(issue: Dict, repo: str, issue_number: int, criteria: str) -> tuple:
+    """
+    Build (system_prompt, user_message) for agent-issue yes/no judgment.
+    criteria should be the content of agent_issue.md. For reuse by RQ2 forge_ai and claude_agent.
+    """
+    system_prompt = (
+        f"You are a GitHub issue classification expert. Determine if the given issue is an \"agent issue\".\n\n"
+        f"Agent Issue Definition and Criteria:\n{criteria}\n\n"
+        "Answer with \"Yes\" or \"No\" only (one word)."
+    )
+    user_message = (
+        f"Issue Title: {issue.get('title', '')}\n\n"
+        f"Issue Description:\n{issue.get('body', '')}\n\n"
+        f"Repository: {repo} #{issue_number}. Is this an agent issue? Yes or No."
+    )
+    return system_prompt, user_message
 
 
 class GitHubIssueCrawler:
@@ -63,7 +131,8 @@ class GitHubIssueCrawler:
         self.min_total_lines = min_total_lines
         self.max_total_lines = max_total_lines
 
-        # Initialize LLM client
+        # Initialize LLM client (lazy import so RQ2 rule_based can use fetch_issue_for_rq2 without openai)
+        from forge.api import LLMClient
         self.llm_client = LLMClient()
         
         # Load agent issue criteria
@@ -662,32 +731,32 @@ class GitHubIssueCrawler:
         Returns:
             (is_agent_issue, AI response)
         """
-        # Build prompt
+        # Build prompt: 只允许回答 Yes 或 No，便于解析且减少随机性
         system_prompt = f"""You are a GitHub issue classification expert. Your task is to determine if a given issue is an "agent issue".
 
 Agent Issue Definition and Criteria:
 {self.agent_issue_criteria}
 
 Based on the above criteria, determine if the given issue is an agent issue.
-Answer with "Yes" or "No", followed by a brief explanation (max 50 words)."""
+You must answer with exactly one word: "Yes" or "No". Do not add any explanation or other text."""
 
         user_message = f"""Issue Title: {issue.get('title', '')}
 
 Issue Description:
 {issue.get('body', '')}
 
-Is this an agent issue? Please answer "Yes" or "No" with a brief explanation."""
+Is this an agent issue? Reply with only one word: Yes or No."""
 
         try:
             response = self.llm_client.simple_chat(
                 user_message=user_message,
                 system_prompt=system_prompt,
-                temperature=0.3
+                temperature=0.0
             )
-            
-            # Check if response contains "Yes"
-            response_lower = response.lower()
-            is_agent = "yes" in response_lower and "no" not in response_lower[:10]
+            response_lower = (response or "").strip().lower()
+            # 只认首词或整段为 yes/no
+            first_word = response_lower.split()[0] if response_lower.split() else ""
+            is_agent = first_word == "yes" or response_lower == "yes"
             return is_agent, response
         except Exception as e:
             print(f"AI judgment error: {e}")
